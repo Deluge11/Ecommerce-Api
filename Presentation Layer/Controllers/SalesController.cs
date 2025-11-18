@@ -1,0 +1,79 @@
+﻿using Presentation_Layer. Authorization;
+using Enums;
+using Business_Layer.Interfaces;
+using Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Presentation_Layer.Controllers;
+
+
+[ApiController]
+[Route("[controller]")]
+[Authorize]
+public class SalesController : ControllerBase
+{
+    private ISalesBusiness SalesBusiness { get; }
+    private IUsersBusiness UsersBusiness { get; }
+
+    public SalesController(ISalesBusiness salesBusiness, IUsersBusiness usersBusiness)
+    {
+        SalesBusiness = salesBusiness;
+        UsersBusiness = usersBusiness;
+    }
+
+
+
+    [CheckPermission(Permission.Sales_ViewOwnSales)]
+    [HttpGet("my-sales")]
+    public async Task<IActionResult> GetMySales(SalesRequest salesRequest)
+    {
+        var sales = await SalesBusiness.GetMySales(salesRequest.state, salesRequest.lastIdSeen);
+        return sales != null ?
+            Ok(sales) : NotFound();
+    }
+
+
+
+    [CheckPermission(Permission.Sales_ViewAllSales)]
+    [HttpGet]
+    public async Task<IActionResult> GetAllSales(SalesRequest salesRequest)
+    {
+        var sales = await SalesBusiness.GetAllSales(salesRequest.state, salesRequest.lastIdSeen);
+        return sales != null ?
+            Ok(sales) : NotFound();
+    }
+
+
+
+    [CheckPermission(Permission.Sales_ViewOwnSales)]
+    [HttpGet("profits")]
+    public async Task<IActionResult> GetMySalesProfits()
+    {
+        var price = await SalesBusiness.GetSalesProfits(UsersBusiness.GetUserId());
+        return price != null ?
+            Ok(price) : NotFound();
+    }
+
+
+
+    [CheckPermission(Permission.Sales_ViewAllSales)]
+    [HttpGet("profits/{sellerId}")]
+    public async Task<IActionResult> GetSalesProfitsBySellerId(int sellerId)
+    {
+        var price = await SalesBusiness.GetSalesProfits(sellerId);
+        return price != null ?
+            Ok(price) : NotFound();
+    }
+
+
+
+    [CheckPermission(Permission.Sales_ViewAllSales)]
+    [HttpGet("MerchantAccounting/{state}")]
+    public async Task<IActionResult> GetMerchantAccountingDetails(MerchantAccountingState state, [FromQuery] int lastIdSeen = 0)
+    {
+        var result = await SalesBusiness.GetMerchantAccounting(state, lastIdSeen);
+        return result != null ?
+            Ok(result) : NotFound();
+    }
+}

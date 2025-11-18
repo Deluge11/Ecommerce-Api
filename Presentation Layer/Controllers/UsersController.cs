@@ -1,0 +1,57 @@
+﻿using Business_Layer.Interfaces;
+using Models;
+using Microsoft.AspNetCore.Authorization;
+using Presentation_Layer.Authentication;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Presentation_Layer.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class UsersController : ControllerBase
+{
+    private IUsersBusiness UsersBusiness { get; }
+    public AuthenticateHelper AuthenticateHelper { get; }
+
+    public UsersController(IUsersBusiness usersBusiness, AuthenticateHelper authenticateHelper)
+    {
+        UsersBusiness = usersBusiness;
+        AuthenticateHelper = authenticateHelper;
+    }
+
+
+
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<ActionResult<string>> AuthenticateUser(AuthenticationRequest data)
+    {
+        User user = await UsersBusiness.Login(data);
+
+        if (user == null)
+        {
+            return NotFound("Something went wrong");
+        }
+
+        return Ok(await AuthenticateHelper.CreateToken(user));
+    }
+
+
+
+    [AllowAnonymous]
+    [HttpPost("register")]
+    public async Task<ActionResult<string>> SignInUser(RegisterRequest request)
+    {
+        string inValidResult = await AuthenticateHelper.IsValidAuthenticate(request);
+
+        if (!string.IsNullOrEmpty(inValidResult))
+        {
+            return BadRequest(inValidResult);
+        }
+
+        User user = await UsersBusiness.InsertUser(request.name, request.email, request.password);
+
+        return Ok(await AuthenticateHelper.CreateToken(user));
+    }
+
+
+}

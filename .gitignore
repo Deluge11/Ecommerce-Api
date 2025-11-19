@@ -1,7 +1,4 @@
 
-bin/
-obj/
-
 # Ignore build folders
 bin/
 obj/

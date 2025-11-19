@@ -22,45 +22,6 @@ public class ProductData : IProductsData
         CategoryRepo = categoryRepo;
     }
 
-    //public async Task<List<ProductCatalog>> GetProductsCatalog(ProductPageInfo request)
-    //{
-    //    List<ProductCatalog> products = new();
-
-    //    using SqlConnection connection = new SqlConnection(ConnectionString);
-    //    using SqlCommand command = new SqlCommand("dbo.GetProductsByCategoryWithPaging", connection);
-
-    //    command.CommandType = CommandType.StoredProcedure;
-    //    command.Parameters.Add(new SqlParameter("@CategoryId", SqlDbType.Int) { Value = request.CategoryId });
-    //    command.Parameters.Add(new SqlParameter("@PageNumber", SqlDbType.Int) { Value = request.PageNumber - 1 });
-    //    command.Parameters.Add(new SqlParameter("@TakeRows", SqlDbType.Int) { Value = request.TakeRows });
-
-    //    try
-    //    {
-    //        await connection.OpenAsync();
-    //        using SqlDataReader reader = await command.ExecuteReaderAsync();
-    //        while (await reader.ReadAsync())
-    //        {
-    //            products.Add(new ProductCatalog
-    //            {
-    //                id = reader.GetInt32(reader.GetOrdinal("id")),
-    //                name = reader.GetString(reader.GetOrdinal("name")),
-    //                price = reader.GetDecimal(reader.GetOrdinal("price")),
-    //                image = reader.IsDBNull(reader.GetOrdinal("path")) ?
-    //                 null : reader.GetString(reader.GetOrdinal("path"))
-
-    //            });
-    //        }
-    //    }
-    //    catch (Exception)
-    //    {
-    //        return null;
-    //    }
-
-
-    //    return products;
-    //}
-
-
     public async Task<List<ProductCatalog>> GetProductsCatalog(ProductPageCatalogInfo request)
     {
         List<ProductCatalog> products = new();
@@ -424,4 +385,7 @@ public class ProductData : IProductsData
 
         return list;
     }
+
+
+
 }

@@ -1,6 +1,6 @@
 ﻿namespace Options;
 
-public class UrlOptions
+public class PaypalUrls
 {
     public string Confirm { get; set; }
     public string Cancel { get; set; }

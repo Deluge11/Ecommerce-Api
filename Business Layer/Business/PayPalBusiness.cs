@@ -21,20 +21,18 @@ namespace Business_Layer.Business;
 public class PayPalBusiness : IPayPalBusiness
 {
     public PaypalOptions PaypalOptions { get; }
-    public UrlOptions UrlOptions { get; }
+    public PaypalUrls PaypalUrls { get; }
     public IPayPalData PayPalData { get; }
     public IOrdersBusiness OrdersBusiness { get; }
     public ILogger<PayPalBusiness> Logger { get; }
     public ISalesBusiness SalesBusiness { get; }
     public ICartItemBusiness CartItemBusiness { get; }
     public IUsersBusiness UsersBusiness { get; }
-    public HttpClient HttpClient { get; }
 
     public PayPalBusiness
         (
         PaypalOptions paypalOptions,
-        UrlOptions urlOptions,
-        HttpClient httpClient,
+        PaypalUrls paypalUrls,
         IPayPalData payPalData,
         IOrdersBusiness ordersBusiness,
         ILogger<PayPalBusiness> logger,
@@ -45,8 +43,7 @@ public class PayPalBusiness : IPayPalBusiness
         )
     {
         PaypalOptions = paypalOptions;
-        UrlOptions = urlOptions;
-        HttpClient = httpClient;
+        PaypalUrls = paypalUrls;
         PayPalData = payPalData;
         OrdersBusiness = ordersBusiness;
         Logger = logger;
@@ -379,8 +376,8 @@ public class PayPalBusiness : IPayPalBusiness
             },
             ApplicationContext = new ApplicationContext
             {
-                ReturnUrl = UrlOptions.Confirm,
-                CancelUrl = UrlOptions.Cancel
+                ReturnUrl = PaypalUrls.Confirm,
+                CancelUrl = PaypalUrls.Cancel
             }
         };
     }

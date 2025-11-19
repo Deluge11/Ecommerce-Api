@@ -12,21 +12,18 @@ public class CartItemBusiness : ICartItemBusiness
 {
     public ICartItemData CartItemData { get; }
     public IUsersBusiness UsersBusiness { get; }
-    public UrlOptions UrlOptions { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
 
     public CartItemBusiness(
         ICartItemData cartItemData,
         IUsersBusiness usersBusiness,
-        UrlOptions urlOptions,
         StoreUrls storeUrls,
         HttpClient httpClient
         )
     {
         CartItemData = cartItemData;
         UsersBusiness = usersBusiness;
-        UrlOptions = urlOptions;
         StoreUrls = storeUrls;
         HttpClient = httpClient;
     }

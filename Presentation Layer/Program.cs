@@ -34,8 +34,8 @@ builder.Services.AddOpenApi();
 var connectionString = builder.Configuration.GetConnectionString("Default");
 var jwtOption = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();
 var paypalOptions = builder.Configuration.GetSection("PayPalKeys").Get<PaypalOptions>();
-var urlOptions = builder.Configuration.GetSection("Urls").Get<UrlOptions>();
-var storeOptions = builder.Configuration.GetSection("StoreUrls").Get<StoreUrls>();
+var paypalUrls = builder.Configuration.GetSection("Urls").Get<PaypalUrls>();
+var storeUrls = builder.Configuration.GetSection("StoreUrls").Get<StoreUrls>();
 var productTrie = new ProductTrie();
 
 
@@ -43,8 +43,8 @@ var productTrie = new ProductTrie();
 builder.Services.AddSingleton<string>(connectionString);
 builder.Services.AddSingleton<JwtOptions>(jwtOption);
 builder.Services.AddSingleton<PaypalOptions>(paypalOptions);
-builder.Services.AddSingleton<UrlOptions>(urlOptions);
-builder.Services.AddSingleton<StoreUrls>(storeOptions);
+builder.Services.AddSingleton<PaypalUrls>(paypalUrls);
+builder.Services.AddSingleton<StoreUrls>(storeUrls);
 builder.Services.AddSingleton<ProductTrie>(productTrie);
 
 

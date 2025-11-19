@@ -19,16 +19,13 @@ public class ProductsBusinees : IProductsBusiness
     public IProductsData ProductsData { get; }
     public IImagesBusiness ImagesBusiness { get; }
     public IUsersBusiness UsersBusiness { get; }
-    public UrlOptions UrlOptions { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
-    public HttpStatusCode Status200OK { get; private set; }
 
     public ProductsBusinees(
         IProductsData productsData,
         IImagesBusiness imagesBusiness,
         IUsersBusiness usersBusiness,
-        UrlOptions urlOptions,
         StoreUrls storeUrls,
         HttpClient httpClient
         )
@@ -36,7 +33,6 @@ public class ProductsBusinees : IProductsBusiness
         ProductsData = productsData;
         ImagesBusiness = imagesBusiness;
         UsersBusiness = usersBusiness;
-        UrlOptions = urlOptions;
         StoreUrls = storeUrls;
         HttpClient = httpClient;
     }

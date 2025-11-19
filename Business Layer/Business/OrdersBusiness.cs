@@ -13,25 +13,19 @@ public class OrdersBusiness : IOrdersBusiness
 {
     public OrdersBusiness(
         IOrdersData ordersData,
-        ICartItemBusiness cartItemBusiness,
         IUsersBusiness usersBusiness,
-        UrlOptions urlOptions,
         StoreUrls storeUrls,
         HttpClient httpClient
         )
     {
         OrdersData = ordersData;
-        UrlOptions = urlOptions;
         StoreUrls = storeUrls;
-        CartItemBusiness = cartItemBusiness;
         UsersBusiness = usersBusiness;
         HttpClient = httpClient;
     }
 
     public IOrdersData OrdersData { get; }
-    public UrlOptions UrlOptions { get; }
     public StoreUrls StoreUrls { get; }
-    public ICartItemBusiness CartItemBusiness { get; }
     public IUsersBusiness UsersBusiness { get; }
     public HttpClient HttpClient { get; }
 

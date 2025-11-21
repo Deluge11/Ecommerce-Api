@@ -92,12 +92,12 @@ public class PayPalBusiness : IPayPalBusiness
 
         try
         {
-            var paymentRequest = await PaymentResponse(order.TotalPrice);
+            var paymentOrder = await CreatePaymentOrder(order.TotalPrice);
 
-            if (await PayPalData.SaveOrderPayment(paymentRequest.PaymentId, order.Id))
+            if (await PayPalData.SaveOrderPayment(paymentOrder.PaymentId, order.Id))
             {
                 operationResult.IsSuccess = true;
-                operationResult.Data = paymentRequest;
+                operationResult.Data = paymentOrder;
                 return operationResult;
             }
 
@@ -121,19 +121,19 @@ public class PayPalBusiness : IPayPalBusiness
 
         try
         {
-            await GetPaymentOrder(paymentId);
+            paymentOrder = await GetPaymentOrder(paymentId);
         }
         catch (Exception)
         {
             return false;
         }
-
-        if (paymentOrder != null && paymentOrder.Status == "COMPLETED")
+        
+        if (paymentOrder == null || paymentOrder.Status != "COMPLETED")
         {
-            return await PayPalData.UpdatePaymentStateId(paymentId, (int)PaymentState.Approved);
+            return false;
         }
 
-        return false;
+        return await PayPalData.UpdatePaymentStateId(paymentId, (int)PaymentState.Approved);
     }
     public async Task<bool> CancelPayment(string paymentId)
     {
@@ -165,7 +165,7 @@ public class PayPalBusiness : IPayPalBusiness
                 string paymentId = relatedIds.GetProperty("order_id").ToString();
 
                 var paymentDetails = await GetPaymentDetails(paymentId);
-
+                
                 if (!await UpdatePaymentStateId(paymentId, PaymentState.Completed))
                 {
                     Logger.LogCritical("Update payment state to completed failed, PaymentId {id}", paymentId);
@@ -240,6 +240,7 @@ public class PayPalBusiness : IPayPalBusiness
 
         try
         {
+            //Paypal webhook headers
             verifyRequest = new
             {
                 auth_algo = headers["Paypal-Auth-Algo"].FirstOrDefault(),
@@ -382,7 +383,7 @@ public class PayPalBusiness : IPayPalBusiness
         };
     }
 
-    private async Task<PayPalPaymentOrder> PaymentResponse(decimal price)
+    private async Task<PayPalPaymentOrder> CreatePaymentOrder(decimal price)
     {
         var client = PayPalClient.Client(PaypalOptions.ClientId, PaypalOptions.ClientSecret);
 

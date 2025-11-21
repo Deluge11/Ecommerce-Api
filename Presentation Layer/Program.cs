@@ -113,7 +113,7 @@ builder.Services.AddSingleton<TimerService>(provider =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MorfaCors", policy =>
-        policy.WithOrigins("https://morfa-shop.vercel.app", "http://localhost:3000")
+        policy.WithOrigins("https://morfa-shop.vercel.app")
             .AllowAnyHeader()
             .AllowAnyMethod()
     );

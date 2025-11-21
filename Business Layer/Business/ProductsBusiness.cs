@@ -11,6 +11,7 @@ using System.Text;
 using Options;
 using System.Net;
 using System.Net.Http.Headers;
+using Business_Layer.Key_Generator_Service;
 
 namespace Business_Layer.Business;
 
@@ -21,13 +22,15 @@ public class ProductsBusinees : IProductsBusiness
     public IUsersBusiness UsersBusiness { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
+    public InventoryOptions InventoryOptions { get; }
 
     public ProductsBusinees(
         IProductsData productsData,
         IImagesBusiness imagesBusiness,
         IUsersBusiness usersBusiness,
         StoreUrls storeUrls,
-        HttpClient httpClient
+        HttpClient httpClient,
+        InventoryOptions inventoryOptions
         )
     {
         ProductsData = productsData;
@@ -35,6 +38,7 @@ public class ProductsBusinees : IProductsBusiness
         UsersBusiness = usersBusiness;
         StoreUrls = storeUrls;
         HttpClient = httpClient;
+        InventoryOptions = inventoryOptions;
     }
 
 
@@ -81,6 +85,11 @@ public class ProductsBusinees : IProductsBusiness
 
         if (product.categoryId < 1)
             return 0;
+
+        if(product.weight < 0.5m)
+        {
+            return 0;
+        }
 
         if (product.description != null)
         {
@@ -229,6 +238,12 @@ public class ProductsBusinees : IProductsBusiness
 
         try
         {
+            string token = InventoryKeyGenerator.GenerateJwt(
+             InventoryOptions.Key, InventoryOptions.Issuer, InventoryOptions.Audience);
+
+            HttpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
             var json = JsonSerializer.Serialize(stock);
             var body = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -245,6 +260,12 @@ public class ProductsBusinees : IProductsBusiness
     {
         try
         {
+            string token = InventoryKeyGenerator.GenerateJwt(
+             InventoryOptions.Key, InventoryOptions.Issuer, InventoryOptions.Audience);
+
+            HttpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
             var json = JsonSerializer.Serialize(request);
             var body = new StringContent(json, Encoding.UTF8, "application/json");
 

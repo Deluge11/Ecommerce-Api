@@ -36,6 +36,7 @@ var jwtOption = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();
 var paypalOptions = builder.Configuration.GetSection("PayPalKeys").Get<PaypalOptions>();
 var paypalUrls = builder.Configuration.GetSection("Urls").Get<PaypalUrls>();
 var storeUrls = builder.Configuration.GetSection("StoreUrls").Get<StoreUrls>();
+var inventoryOptions = builder.Configuration.GetSection("Ecommerce_Inventory_Shared_Key").Get<InventoryOptions>();
 var productTrie = new ProductTrie();
 
 
@@ -45,6 +46,7 @@ builder.Services.AddSingleton<JwtOptions>(jwtOption);
 builder.Services.AddSingleton<PaypalOptions>(paypalOptions);
 builder.Services.AddSingleton<PaypalUrls>(paypalUrls);
 builder.Services.AddSingleton<StoreUrls>(storeUrls);
+builder.Services.AddSingleton<InventoryOptions>(inventoryOptions);
 builder.Services.AddSingleton<ProductTrie>(productTrie);
 
 
@@ -68,7 +70,7 @@ builder.Services.AddAuthentication()
 
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<HttpClient>();
+builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<IImagesBusiness, ImagesBusiness>();
 builder.Services.AddScoped<IUsersBusiness, UsersBusiness>();

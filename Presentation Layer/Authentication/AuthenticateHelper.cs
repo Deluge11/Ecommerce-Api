@@ -17,8 +17,7 @@ public class AuthenticateHelper
     public IEmailBusiness EmailBusiness { get; }
     public IAuthorizeBusiness AuthorizeBusiness { get; }
 
-    public AuthenticateHelper
-        (
+    public AuthenticateHelper(
         JwtOptions jwtOptions,
         IEmailBusiness emailBusiness,
         IAuthorizeBusiness authorizeBusiness
@@ -50,7 +49,7 @@ public class AuthenticateHelper
         {
             Issuer = JwtOptions.Issuer,
             Audience = JwtOptions.Audience,
-            //Expires = DateTime.UtcNow.AddMinutes(JwtOptions.Lifetime),
+            Expires = DateTime.UtcNow.AddMinutes(JwtOptions.Lifetime),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtOptions.SigningKey)), SecurityAlgorithms.HmacSha256),
             Subject = new ClaimsIdentity(claims)
         };
@@ -60,7 +59,7 @@ public class AuthenticateHelper
         return tokenHandler.WriteToken(securityToken);
     }
 
-  
+
     public async Task<string> IsValidAuthenticate(RegisterRequest request)
     {
         if (request.password.Length < 8)
@@ -77,5 +76,5 @@ public class AuthenticateHelper
         }
         return string.Empty;
     }
-  
+
 }

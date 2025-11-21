@@ -18,8 +18,7 @@ public class OrdersController : ControllerBase
     public IOrdersBusiness OrdersBusiness { get; }
     public IUsersBusiness UsersBusiness { get; }
 
-    public OrdersController
-        (
+    public OrdersController (
         ILogger<OrdersController> _logger,
         IOrdersBusiness ordersBusiness,
         IUsersBusiness usersBusiness

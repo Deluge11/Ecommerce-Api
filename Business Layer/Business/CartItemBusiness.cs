@@ -5,6 +5,8 @@ using System.Text.Json;
 using System.Text;
 using Models;
 using Options;
+using System.Net.Http.Headers;
+using Business_Layer.Key_Generator_Service;
 
 namespace Business_Layer.Business;
 
@@ -14,18 +16,21 @@ public class CartItemBusiness : ICartItemBusiness
     public IUsersBusiness UsersBusiness { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
+    public InventoryOptions InventoryOptions { get; }
 
     public CartItemBusiness(
         ICartItemData cartItemData,
         IUsersBusiness usersBusiness,
         StoreUrls storeUrls,
-        HttpClient httpClient
+        HttpClient httpClient,
+        InventoryOptions inventoryOptions
         )
     {
         CartItemData = cartItemData;
         UsersBusiness = usersBusiness;
         StoreUrls = storeUrls;
         HttpClient = httpClient;
+        InventoryOptions = inventoryOptions;
     }
 
 
@@ -76,6 +81,12 @@ public class CartItemBusiness : ICartItemBusiness
 
         try
         {
+            string token = InventoryKeyGenerator.GenerateJwt(
+                InventoryOptions.Key,InventoryOptions.Issuer,InventoryOptions.Audience);
+
+            HttpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
             var json = JsonSerializer.Serialize(cartItemsQuantities);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 

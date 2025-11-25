@@ -27,7 +27,7 @@ public class PromocodeController : ControllerBase
     {
         var result = await PromoCodeBusiness.AddPromoCode(promoCode);
 
-        if (result.IsSuccess)
+        if (result.Success)
         {
             return Created();
         }
@@ -47,7 +47,7 @@ public class PromocodeController : ControllerBase
     {
         var result = await PromoCodeBusiness.GetPromoCodes();
 
-        if (result.IsSuccess)
+        if (result.Success)
         {
             return Ok(result.Data);
         }
@@ -62,7 +62,7 @@ public class PromocodeController : ControllerBase
     {
         var result = await PromoCodeBusiness.TogglePromocode(id);
 
-        if (result.IsSuccess)
+        if (result.Success)
         {
             return Ok();
         }

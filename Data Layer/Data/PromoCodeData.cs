@@ -51,12 +51,12 @@ public class PromoCodeData : IPromoCodeData
 
                 });
             }
-            result.IsSuccess = true;
+            result.Success = true;
             result.Data = list;
         }
         catch (Exception)
         {
-            result.IsSuccess = false;
+            result.Success = false;
             result.ErrorType = ErrorType.ServerIsDown;
         }
         return result;
@@ -83,11 +83,11 @@ public class PromoCodeData : IPromoCodeData
         try
         {
             await sqlConnection.OpenAsync();
-            result.IsSuccess = await sqlCommand.ExecuteNonQueryAsync() > 0;
+            result.Success = await sqlCommand.ExecuteNonQueryAsync() > 0;
         }
         catch (Exception)
         {
-            result.IsSuccess = false;
+            result.Success = false;
             result.ErrorType = ErrorType.ServerIsDown;
         }
         return result;
@@ -112,11 +112,11 @@ public class PromoCodeData : IPromoCodeData
         try
         {
             await sqlConnection.OpenAsync();
-            result.IsSuccess = await sqlCommand.ExecuteNonQueryAsync() > 0;
+            result.Success = await sqlCommand.ExecuteNonQueryAsync() > 0;
         }
         catch (Exception)
         {
-            result.IsSuccess = false;
+            result.Success = false;
             result.ErrorType = ErrorType.ServerIsDown;
         }
         return result;

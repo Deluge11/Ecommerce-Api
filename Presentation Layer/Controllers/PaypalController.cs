@@ -32,7 +32,7 @@ public class PayPalController : ControllerBase
     {
         var result = await PayPalBusiness.CreateOrder();
 
-        if (result.IsSuccess)
+        if (result.Success)
         {
             return Ok(result.Data);
         }

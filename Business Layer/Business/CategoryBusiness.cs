@@ -21,23 +21,33 @@ public class CategoryBusiness : ICategoryBusiness
 
     public async Task<bool> Add(string name)
     {
-        name = Sanitization.SanitizeInput(name);
+        name = Sanitization.SanitizeInput(name.Trim());
         return await CategoryData.Add(name);
     }
 
     public async Task<bool> AddImage(int categoryId, IFormFile image)
     {
+        if(categoryId < 1)
+        {
+            return false;
+        }
+
         var category = await GetById(categoryId);
 
         if (image == null || category.id == 0)
+        {
             return false;
+        }
 
         if (!await ImagesBusiness.IsValidImage(image))
+        {
             return false;
+        }
 
         if (category.image != null)
+        {
             File.Delete(category.image);
-
+        }
 
         string folderName = "Images/CategoryImage";
         var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
@@ -55,12 +65,17 @@ public class CategoryBusiness : ICategoryBusiness
 
     public async Task<Category> GetById(int id)
     {
+        if (id < 1)
+        {
+            return null;
+        }
+
         return await CategoryData.GetById(id);
     }
 
     public async Task<bool> Update(int categoyId, string categoryName)
     {
-        categoryName = Sanitization.SanitizeInput(categoryName);
+        categoryName = Sanitization.SanitizeInput(categoryName.Trim());
         return await CategoryData.Update(categoyId, categoryName);
     }
 }

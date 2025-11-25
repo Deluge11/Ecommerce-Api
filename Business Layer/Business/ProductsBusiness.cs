@@ -11,7 +11,6 @@ using System.Text;
 using Options;
 using System.Net;
 using System.Net.Http.Headers;
-using Business_Layer.Key_Generator_Service;
 
 namespace Business_Layer.Business;
 
@@ -20,94 +19,153 @@ public class ProductsBusinees : IProductsBusiness
     public IProductsData ProductsData { get; }
     public IImagesBusiness ImagesBusiness { get; }
     public IUsersBusiness UsersBusiness { get; }
+    public IInventoryKeyGenerator InventoryKeyGenerator { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
-    public InventoryOptions InventoryOptions { get; }
 
     public ProductsBusinees(
         IProductsData productsData,
         IImagesBusiness imagesBusiness,
         IUsersBusiness usersBusiness,
+        IInventoryKeyGenerator inventoryKeyGenerator,
         StoreUrls storeUrls,
-        HttpClient httpClient,
-        InventoryOptions inventoryOptions
+        HttpClient httpClient
         )
     {
         ProductsData = productsData;
         ImagesBusiness = imagesBusiness;
         UsersBusiness = usersBusiness;
+        InventoryKeyGenerator = inventoryKeyGenerator;
         StoreUrls = storeUrls;
         HttpClient = httpClient;
-        InventoryOptions = inventoryOptions;
     }
 
 
     public async Task<decimal> GetMyProductPriceById(int productId)
     {
-        return await ProductsData.GetMyProductPriceById(productId, UsersBusiness.GetUserId());
+        if (productId < 1)
+        {
+            return -1;
+        }
+
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+        {
+            return -1;
+        }
+
+        return await ProductsData.GetMyProductPriceById(productId, userId);
     }
 
     public async Task<List<ProductCatalog>> GetMyProducts()
     {
-        return await ProductsData.GetMyProducts(UsersBusiness.GetUserId());
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+        {
+            return [];
+        }
+
+        return await ProductsData.GetMyProducts(userId);
     }
 
     public async Task<ProductDetails> GetProductById(int productId)
     {
+        if (productId < 1)
+        {
+            return null;
+        }
+
         return await ProductsData.GetProductById(productId);
     }
 
     public async Task<List<ProductCatalog>> GetProductByUserId(int userId)
     {
+        if (userId < 1)
+        {
+            return [];
+        }
+
         return await ProductsData.GetProductByUserId(userId);
     }
 
     public async Task<List<ProductImage>> GetProductImages(int productId)
     {
+        if (productId < 1)
+        {
+            return [];
+        }
+
         return await ProductsData.GetProductImages(productId);
     }
 
     public async Task<List<ProductCatalog>> GetProductsCatalog(ProductPageCatalogInfo request)
     {
         if (request.Take < 1 || request.Take > 12)
+        {
             return null;
-
+        }
         if (request.CategoryId < 1)
+        {
             return null;
-
+        }
         return await ProductsData.GetProductsCatalog(request);
     }
 
-    public async Task<int> InsertProduct(InsertProductRequest product)
+    public async Task<OperationResult<int>> InsertProduct(InsertProductRequest product)
     {
-        if (product.price < 1)
-            return 0;
+        OperationResult<int> createNewProductOperation = new();
+        int userId = UsersBusiness.GetUserId();
 
-        if (product.categoryId < 1)
-            return 0;
-
-        if(product.weight < 0.5m)
+        if (userId == 0)
         {
-            return 0;
+            createNewProductOperation.ErrorMessage = "invalid user id";
+        }
+        if (product.price < 1)
+        {
+            createNewProductOperation.ErrorMessage = "Invalid price value";
+        }
+        if (product.categoryId < 1)
+        {
+            createNewProductOperation.ErrorMessage = "Invalid category id value";
+        }
+        if (product.weight < 0.2m)
+        {
+            createNewProductOperation.ErrorMessage = "weight value less than 0.2Kg";
+        }
+
+        product.name = Sanitization.SanitizeInput(product.name.Trim());
+        if (product.name.Length < 1)
+        {
+            createNewProductOperation.ErrorMessage = "invalid user id";
+        }
+        if (createNewProductOperation.ErrorMessage != null)
+        {
+            return createNewProductOperation;
         }
 
         if (product.description != null)
         {
-            product.description = Sanitization.SanitizeInput(product.description);
+            product.description = Sanitization.SanitizeInput(product.description.Trim());
         }
 
-        product.name = Sanitization.SanitizeInput(product.name);
-
-        int userId = UsersBusiness.GetUserId();
         int newProductId = await ProductsData.InsertProduct(product, userId);
 
         if (newProductId == 0)
-            return 0;
+        {
+            createNewProductOperation.ErrorMessage = "Add products info faild";
+            return createNewProductOperation;
+        }
 
         if (!await AddStockIntoStore(product, newProductId, userId))
-            return 0;
+        {
+            createNewProductOperation.ErrorMessage = "Add products info faild";
+            return createNewProductOperation;
+        }
 
-        return newProductId;
+        createNewProductOperation.Success = true;
+        return createNewProductOperation;
     }
 
     public async Task<bool> AddStockQuantity(AddProductQuantity item)
@@ -132,10 +190,7 @@ public class ProductsBusinees : IProductsBusiness
     public async Task<bool> UpdateProduct(UpdateProductRequest product)
     {
         if (product.price < 1)
-        {
             return false;
-
-        }
 
         if (product.description != null)
         {
@@ -152,9 +207,7 @@ public class ProductsBusinees : IProductsBusiness
         bool isValid = Enum.IsDefined(typeof(ProductState), state);
 
         if (!isValid)
-        {
             return false;
-        }
 
         return await ProductsData.UpdateProductState(productId, UsersBusiness.GetUserId(), (int)state);
     }
@@ -238,8 +291,7 @@ public class ProductsBusinees : IProductsBusiness
 
         try
         {
-            string token = InventoryKeyGenerator.GenerateJwt(
-             InventoryOptions.Key, InventoryOptions.Issuer, InventoryOptions.Audience);
+            string token = InventoryKeyGenerator.GenerateJwt();
 
             HttpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", token);
@@ -260,8 +312,7 @@ public class ProductsBusinees : IProductsBusiness
     {
         try
         {
-            string token = InventoryKeyGenerator.GenerateJwt(
-             InventoryOptions.Key, InventoryOptions.Issuer, InventoryOptions.Audience);
+            string token = InventoryKeyGenerator.GenerateJwt();
 
             HttpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", token);

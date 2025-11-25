@@ -26,8 +26,15 @@ public class UsersBusiness : IUsersBusiness
 
     public int GetUserId()
     {
-        var claimIdentity = HttpContext.User.Identity as ClaimsIdentity;
-        return int.Parse(claimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value);
+        try
+        {
+            var claimIdentity = HttpContext.User.Identity as ClaimsIdentity;
+            return int.Parse(claimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value);
+        }
+        catch (Exception)
+        {
+            return 0;
+        }
     }
     public async Task<User> Login(AuthenticationRequest request)
     {

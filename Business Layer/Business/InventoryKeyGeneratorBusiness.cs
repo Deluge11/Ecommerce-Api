@@ -1,0 +1,43 @@
+﻿using Business_Layer.Interfaces;
+using Microsoft.IdentityModel.Tokens;
+using Options;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Business_Layer.Business
+{
+    public class InventoryKeyGenerator : IInventoryKeyGenerator
+    {
+        public InventoryKeyGenerator(InventoryOptions inventoryOptions)
+        {
+            InventoryOptions = inventoryOptions;
+        }
+
+        public InventoryOptions InventoryOptions { get; }
+
+        public string GenerateJwt()
+        {
+            if(InventoryOptions == null)
+            {
+                return string.Empty;
+            }
+
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(InventoryOptions.Key));
+            var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+
+
+            var token = new JwtSecurityToken(
+                issuer: InventoryOptions.Issuer,
+                audience: InventoryOptions.Audience,
+                expires: DateTime.UtcNow.AddMinutes(2),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+    }
+}

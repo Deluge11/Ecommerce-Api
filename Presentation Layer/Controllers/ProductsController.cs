@@ -84,9 +84,9 @@ public class ProductsController : ControllerBase
     public async Task<ActionResult<int>> InsertProduct(InsertProductRequest product)
     {
 
-        int result = await ProductsBusiness.InsertProduct(product);
-        return result > 0 ?
-            Ok(result) : BadRequest("Invalid Params");
+        var result = await ProductsBusiness.InsertProduct(product);
+        return result.Success ?
+            Ok(result) : BadRequest(result.ErrorMessage);
     }
 
 

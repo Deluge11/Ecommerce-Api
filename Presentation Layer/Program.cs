@@ -85,6 +85,7 @@ builder.Services.AddScoped<IOrdersBusiness, OrdersBusiness>();
 builder.Services.AddScoped<IEmailBusiness, EmailBusiness>();
 builder.Services.AddScoped<ISellerBusiness, SellerBusiness>();
 builder.Services.AddScoped<IAuthorizeBusiness, AuthorizeBusiness>();
+builder.Services.AddScoped<IInventoryKeyGenerator, InventoryKeyGenerator>();
 
 builder.Services.AddScoped<IUsersData, UsersData>();
 builder.Services.AddScoped<ICartItemData, CartItemsData>();

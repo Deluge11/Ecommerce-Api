@@ -17,6 +17,15 @@ public class ImagesBusiness : IImagesBusiness
     }
     public async Task StreamImage(string filePath, IFormFile file)
     {
+        if (filePath == null || filePath.Length < 1)
+        {
+            return;
+        }
+        if (file == null || file.Length < 1)
+        {
+            return;
+        }
+
         try
         {
             using var fileStream = new FileStream(filePath, FileMode.Create);
@@ -29,6 +38,11 @@ public class ImagesBusiness : IImagesBusiness
     }
     public async Task<bool> IsValidImage(IFormFile file)
     {
+        if (file == null || file.Length < 1)
+        {
+            return false;
+        }
+
         long maxFileSizeBytes = 3 * 1024 * 1024;
         var allowedExtensions = new[] { ".webp" };
         var allowedContentTypes = new[] { "image/webp" };

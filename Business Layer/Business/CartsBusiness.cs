@@ -18,17 +18,38 @@ public class CartsBusiness : ICartsBusiness
 
     public async Task<List<CartItemCatalog>> GetCartItems()
     {
-        return await CartsData.GetCartItems(UsersBusiness.GetUserId());
+        int userId = UsersBusiness.GetUserId();
+
+        if(userId == 0)
+        {
+            return [];
+        }
+
+        return await CartsData.GetCartItems(userId);
     }
 
     public async Task<int> GetCartItemsCount()
     {
-        return await CartsData.GetCartItemsCount(UsersBusiness.GetUserId());
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+        {
+            return 0;
+        }
+
+        return await CartsData.GetCartItemsCount(userId);
     }
 
     public async Task<decimal> GetTotalPrice()
     {
-        return await CartsData.GetTotalPrice(UsersBusiness.GetUserId());
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+        {
+            return 0;
+        }
+
+        return await CartsData.GetTotalPrice(userId);
     }
 
 }

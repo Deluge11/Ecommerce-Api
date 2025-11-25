@@ -13,7 +13,7 @@ public interface IProductsBusiness
     Task<List<ProductCatalog>> GetProductByUserId(int userId);
     Task<List<ProductCatalog>> GetMyProducts();
     Task<decimal> GetMyProductPriceById(int productId);
-    Task<int> InsertProduct(InsertProductRequest product);
+    Task<OperationResult<int>> InsertProduct(InsertProductRequest product);
     Task<bool> AddStockQuantity(AddProductQuantity item);
     Task<bool> UpdateProduct(UpdateProductRequest product);
     Task<bool> UpdateProductState(int productId, ProductState state);

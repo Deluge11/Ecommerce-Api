@@ -57,58 +57,37 @@ public class PayPalBusiness : IPayPalBusiness
 
     public async Task<OperationResult<PayPalPaymentOrder>> CreateOrder()
     {
-        OperationResult<PayPalPaymentOrder> operationResult = new();
+        OperationResult<PayPalPaymentOrder> createPaymentOrderOpration = new();
+        OperationResult<Order> createStockOrderOpration = await OrdersBusiness.CreateOrder();
 
-
-        Order order = await OrdersBusiness.CreateOrder();
-
-        if (order == null)
+        if (!createStockOrderOpration.Success || createStockOrderOpration.Data == null)
         {
-            if (await CartItemBusiness.SyncCartItemsPromocode())
-            {
-                operationResult.ErrorMessage = "The quantity of products has been modified to match the quantity of the promo codes.";
-            }
-            else
-            {
-                operationResult.ErrorMessage = "Something went Wrong";
-            }
-
-            return operationResult;
+            createPaymentOrderOpration.ErrorMessage = createStockOrderOpration.ErrorMessage;
+            return createPaymentOrderOpration;
         }
 
-        if (!await OrdersBusiness.CreateStoreOrder(order.Id))
-        {
-            if (await CartItemBusiness.SyncCartItemsWithStocks())
-            {
-                operationResult.ErrorMessage = "The quantity of products has been modified to match the quantity of the stocks.";
-            }
-            else
-            {
-                operationResult.ErrorMessage = "Something went Wrong";
-            }
 
-            return operationResult;
+        Order order = createStockOrderOpration.Data;
+        var paymentOrder = await CreatePaymentOrder(order.TotalPrice);
+        if (paymentOrder == null)
+        {
+            createPaymentOrderOpration.ErrorMessage = "Create paypal payment order faild";
+            return createPaymentOrderOpration;
         }
 
-        try
+
+        bool paymentSaved = await PayPalData.SaveOrderPayment(paymentOrder.PaymentId, order.Id);
+        if (paymentSaved)
         {
-            var paymentOrder = await CreatePaymentOrder(order.TotalPrice);
-
-            if (await PayPalData.SaveOrderPayment(paymentOrder.PaymentId, order.Id))
-            {
-                operationResult.IsSuccess = true;
-                operationResult.Data = paymentOrder;
-                return operationResult;
-            }
-
-            operationResult.ErrorMessage = "Something went wrong";
+            createPaymentOrderOpration.Success = true;
+            createPaymentOrderOpration.Data = paymentOrder;
         }
-        catch (Exception ex)
+        else
         {
-            operationResult.ErrorMessage = "Something went wrong";
+            createPaymentOrderOpration.ErrorMessage = "Something went wrong";
         }
 
-        return operationResult;
+        return createPaymentOrderOpration;
     }
     public async Task<bool> ConfirmPayment(string paymentId)
     {
@@ -127,7 +106,7 @@ public class PayPalBusiness : IPayPalBusiness
         {
             return false;
         }
-        
+
         if (paymentOrder == null || paymentOrder.Status != "COMPLETED")
         {
             return false;
@@ -146,10 +125,11 @@ public class PayPalBusiness : IPayPalBusiness
     }
     public async Task<bool> Webhook(JsonDocument body, IHeaderDictionary headers)
     {
-        if (!await VerifyEvent(body, headers))
-        {
+        bool isRequestedFromPaypal = await VerifyEvent(body, headers);
+
+        if (!isRequestedFromPaypal)
             return false;
-        }
+
 
         if (body.RootElement.TryGetProperty("event_type", out var eventType))
         {
@@ -165,7 +145,7 @@ public class PayPalBusiness : IPayPalBusiness
                 string paymentId = relatedIds.GetProperty("order_id").ToString();
 
                 var paymentDetails = await GetPaymentDetails(paymentId);
-                
+
                 if (!await UpdatePaymentStateId(paymentId, PaymentState.Completed))
                 {
                     Logger.LogCritical("Update payment state to completed failed, PaymentId {id}", paymentId);
@@ -192,30 +172,84 @@ public class PayPalBusiness : IPayPalBusiness
 
     private async Task<bool> UpdatePaymentStateId(string paymentId, PaymentState state)
     {
+        if (paymentId == null || paymentId.Trim().Length < 1)
+        {
+            return false;
+        }
         if (!Enum.IsDefined(typeof(PaymentState), state))
         {
             return false;
         }
+
         return await PayPalData.UpdatePaymentStateId(paymentId, (int)state);
     }
 
     private async Task<PaymentDetails> GetPaymentDetails(string paymentId)
     {
+        if (paymentId == null || paymentId.Trim().Length < 1)
+        {
+            return null;
+        }
         return await PayPalData.GetPaymentDetails(paymentId);
+    }
+
+    private async Task<PayPalPaymentOrder> CreatePaymentOrder(decimal price)
+    {
+        if (price < 1)
+        {
+            return null;
+        }
+
+        var client = PayPalClient.Client(PaypalOptions.ClientId, PaypalOptions.ClientSecret);
+        var request = new OrdersCreateRequest();
+        request.Prefer("return=representation");
+        request.RequestBody(CreatePaypalPaymentBody(price));
+
+        try
+        {
+            var response = await client.Execute(request);
+            var result = response.Result<PaymentOrder>();
+            var approvalLink = result.Links.Find(x => x.Rel == "approve")?.Href;
+            return new PayPalPaymentOrder
+            {
+                PaymentId = result.Id,
+                ApprovalLink = approvalLink
+            };
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+    private async Task<CreatePayoutResponse> PayoutResponse(CreatePayoutRequest body)
+    {
+        var client = PayPalClient.Client(PaypalOptions.ClientId, PaypalOptions.ClientSecret);
+        var request = new PayoutsPostRequest();
+        request.RequestBody(body);
+        var response = await client.Execute(request);
+        return response.Result<CreatePayoutResponse>();
     }
 
     private async Task<PaymentOrder> GetPaymentOrder(string paymentId)
     {
-        var request = new OrdersCaptureRequest(paymentId);
-        request.RequestBody(new OrderActionRequest());
+        if (paymentId == null || paymentId.Trim().Length < 1)
+        {
+            return null;
+        }
 
         var client = PayPalClient.Client(PaypalOptions.ClientId, PaypalOptions.ClientSecret);
+        var request = new OrdersCaptureRequest(paymentId);
+        request.RequestBody(new OrderActionRequest());
         var response = await client.Execute(request);
         return response.Result<PaymentOrder>();
     }
 
     private async Task<bool> VerifyPaymentAccess(string paymentId)
     {
+        if (paymentId == null || paymentId.Trim().Length < 1)
+        {
+            return false;
+        }
         var paymentDetails = await GetPaymentDetails(paymentId);
 
         if (paymentDetails == null)
@@ -282,7 +316,6 @@ public class PayPalBusiness : IPayPalBusiness
 
         return status == "SUCCESS";
     }
-
     private async Task<string> GetAccessToken()
     {
         var client = new HttpClient();
@@ -349,18 +382,13 @@ public class PayPalBusiness : IPayPalBusiness
         }
         };
     }
-
-    private async Task<CreatePayoutResponse> PayoutResponse(CreatePayoutRequest body)
-    {
-        var client = PayPalClient.Client(PaypalOptions.ClientId, PaypalOptions.ClientSecret);
-        var request = new PayoutsPostRequest();
-        request.RequestBody(body);
-        var response = await client.Execute(request);
-        return response.Result<CreatePayoutResponse>();
-    }
-
     private OrderRequest CreatePaypalPaymentBody(decimal price)
     {
+        if(price < 1)
+        {
+            return null;
+        }
+
         return new OrderRequest()
         {
             CheckoutPaymentIntent = "CAPTURE",
@@ -383,24 +411,6 @@ public class PayPalBusiness : IPayPalBusiness
         };
     }
 
-    private async Task<PayPalPaymentOrder> CreatePaymentOrder(decimal price)
-    {
-        var client = PayPalClient.Client(PaypalOptions.ClientId, PaypalOptions.ClientSecret);
-
-        var request = new OrdersCreateRequest();
-        request.Prefer("return=representation");
-        request.RequestBody(CreatePaypalPaymentBody(price));
-
-        var response = await client.Execute(request);
-        var result = response.Result<PaymentOrder>();
-        var approvalLink = result.Links.Find(x => x.Rel == "approve")?.Href;
-
-        return new PayPalPaymentOrder
-        {
-            PaymentId = result.Id,
-            ApprovalLink = approvalLink
-        };
-    }
 }
 
 

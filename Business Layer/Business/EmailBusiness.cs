@@ -17,6 +17,6 @@ public class EmailBusiness : IEmailBusiness
 
     public Task<bool> EmailExists(string email)
     {
-        return EmailData.EmailExists(email);
+        return EmailData.EmailExists(email.Trim());
     }
 }

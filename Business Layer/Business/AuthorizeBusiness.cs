@@ -16,6 +16,11 @@ namespace Business_Layer.Business
 
         public async Task<List<int>> GetPermissions(int userId)
         {
+            if(userId == 0)
+            {
+                return [];
+            }
+
             return await AuthorizeData.GetPermissions(userId);
         }
 

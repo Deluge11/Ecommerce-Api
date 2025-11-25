@@ -34,7 +34,7 @@ public class PromoCodeBusiness : IPromoCodeBusiness
         {
             result.ErrorMessage = verifyResult;
             result.ErrorType = ErrorType.BadRequest;
-            result.IsSuccess = false;
+            result.Success = false;
             return result;
         }
 

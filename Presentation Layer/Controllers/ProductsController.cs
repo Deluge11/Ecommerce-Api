@@ -107,8 +107,9 @@ public class ProductsController : ControllerBase
     [HttpPost("{productId}")]
     public async Task<ActionResult> UploadImage(List<IFormFile> images, int productId)
     {
-        return await ProductsBusiness.UploadImage(images, productId) ?
-            Ok() : BadRequest();
+        var result = await ProductsBusiness.UploadImage(images, productId);
+        return result.Success ?
+            Ok(result.Data) : BadRequest(result.ErrorMessage);
     }
 
 

@@ -13,7 +13,7 @@ public class PromoCodeBusiness : IPromoCodeBusiness
     public IUsersBusiness UsersBusiness { get; }
 
     public PromoCodeBusiness(
-        IProductsBusiness productsBusiness, 
+        IProductsBusiness productsBusiness,
         IPromoCodeData promoCodeData,
         IUsersBusiness usersBusiness
         )
@@ -28,29 +28,50 @@ public class PromoCodeBusiness : IPromoCodeBusiness
     {
         var result = new OperationResult<bool>();
 
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+        {
+            result.ErrorMessage = "Unauthenticate user";
+            return result;
+        }
+
+        promoCode.code = Sanitization.SanitizeInput(promoCode.code);
+
         string verifyResult = await VerifyPromoCode(promoCode);
 
         if (!string.IsNullOrEmpty(verifyResult))
         {
             result.ErrorMessage = verifyResult;
             result.ErrorType = ErrorType.BadRequest;
-            result.Success = false;
             return result;
         }
 
-        promoCode.code = Sanitization.SanitizeInput(promoCode.code);
-
-        return await PromoCodeData.AddPromoCode(promoCode, UsersBusiness.GetUserId());
+        return await PromoCodeData.AddPromoCode(promoCode,userId);
     }
 
-    public async Task<OperationResult<List<PromoCode>>> GetPromoCodes()
+    public async Task<List<PromoCode>> GetPromoCodes()
     {
-        return await PromoCodeData.GetPromoCodes(UsersBusiness.GetUserId());
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+        {
+            return null;
+        }
+
+        return await PromoCodeData.GetPromoCodes(userId);
     }
 
-    public async Task<OperationResult<bool>> TogglePromocode(int promocodeId)
+    public async Task<bool> TogglePromocode(int promocodeId)
     {
-        return await PromoCodeData.TogglePromocode(promocodeId, UsersBusiness.GetUserId());
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+        {
+            return false;
+        }
+
+        return await PromoCodeData.TogglePromocode(promocodeId, userId);
     }
 
     private async Task<string> VerifyPromoCode(AddPromocode promoCode)

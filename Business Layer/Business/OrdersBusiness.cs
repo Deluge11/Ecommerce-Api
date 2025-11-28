@@ -171,8 +171,12 @@ public class OrdersBusiness : IOrdersBusiness
         {
             string token = InventoryKeyGenerator.GenerateJwt();
 
-            HttpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
+            if (string.IsNullOrEmpty(token))
+            {
+                return false;
+            }
+
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await HttpClient.PatchAsync(StoreUrls.ConfrimOrder + $"{orderId}", null);
             return response.StatusCode == System.Net.HttpStatusCode.OK;

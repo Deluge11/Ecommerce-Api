@@ -26,18 +26,8 @@ public class PromocodeController : ControllerBase
     public async Task<IActionResult> AddPromoCode(AddPromocode promoCode)
     {
         var result = await PromoCodeBusiness.AddPromoCode(promoCode);
-
-        if (result.Success)
-        {
-            return Created();
-        }
-
-        if (result.ErrorType == ErrorType.BadRequest)
-        {
-            return BadRequest(result.ErrorMessage);
-        }
-
-        return NotFound("Something went wrong");
+        return result.Success ?
+            Ok() : BadRequest(result.ErrorMessage);
     }
 
 
@@ -46,13 +36,8 @@ public class PromocodeController : ControllerBase
     public async Task<IActionResult> GetMyPromoCodes()
     {
         var result = await PromoCodeBusiness.GetPromoCodes();
-
-        if (result.Success)
-        {
-            return Ok(result.Data);
-        }
-
-        return NotFound("Something went wrong");
+        return result == null || result.Count < 1 ?
+            BadRequest() : Ok(result);
     }
 
 
@@ -60,14 +45,8 @@ public class PromocodeController : ControllerBase
     [HttpPatch("{id}")]
     public async Task<IActionResult> TogglePromoCode(int id)
     {
-        var result = await PromoCodeBusiness.TogglePromocode(id);
-
-        if (result.Success)
-        {
-            return Ok();
-        }
-
-        return NotFound("Something went wrong");
+        return await PromoCodeBusiness.TogglePromocode(id) ?
+            Ok() : BadRequest();
     }
 
 }

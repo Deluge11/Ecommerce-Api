@@ -23,16 +23,31 @@ namespace Business_Layer.Business
 
         public async Task<bool> ApplyForSeller()
         {
-            return await SellerData.ApplyForSeller(UsersBusiness.GetUserId());
+            int userId = UsersBusiness.GetUserId();
+
+            if(userId == 0)
+            {
+                return false;
+            }
+
+            return await SellerData.ApplyForSeller(userId);
         }
 
         public async Task<bool> ConfirmSeller(int requestId)
         {
+            if (requestId == 0)
+            {
+                return false;
+            }
             return await SellerData.ConfirmSeller(requestId);
         }
 
         public async Task<bool> RefuseSeller(int requestId)
         {
+            if (requestId == 0)
+            {
+                return false;
+            }
             return await SellerData.RefuseSeller(requestId);
         }
     }

@@ -72,17 +72,9 @@ public class PayPalController : ControllerBase
         var body = JsonDocument.Parse(await reader.ReadToEndAsync());
         var headers = HttpContext.Request.Headers;
 
-        try
+        if (!await PayPalBusiness.Webhook(body, headers))
         {
-            if (!await PayPalBusiness.Webhook(body, headers))
-            {
-                return BadRequest();
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogCritical("Webhook failed Error Massage: {error}", ex.Message);
-            return StatusCode(500);
+            return BadRequest();
         }
 
         return Ok();

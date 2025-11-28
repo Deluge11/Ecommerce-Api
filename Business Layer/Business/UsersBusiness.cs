@@ -15,12 +15,18 @@ public class UsersBusiness : IUsersBusiness
 {
     private IHttpContextAccessor _httpContextAccessor { get; }
     private IUsersData UsersData { get; }
+    public IEmailBusiness EmailBusiness { get; }
+
     private HttpContext HttpContext => _httpContextAccessor.HttpContext;
 
-    public UsersBusiness(IHttpContextAccessor httpContext, IUsersData usersData)
+    public UsersBusiness(
+        IHttpContextAccessor httpContext,
+        IUsersData usersData,
+        IEmailBusiness emailBusiness)
     {
         _httpContextAccessor = httpContext;
         UsersData = usersData;
+        EmailBusiness = emailBusiness;
     }
 
 
@@ -49,10 +55,6 @@ public class UsersBusiness : IUsersBusiness
     }
     public async Task<User> InsertUser(string name, string email, string password)
     {
-        name = Sanitization.SanitizeInput(name);
-        email = Sanitization.SanitizeInput(email);
-        password = Sanitization.SanitizeInput(password);
-
         var passwordHasher = new PasswordHasher<object>();
         string hashedPassword = passwordHasher.HashPassword(null, password);
 
@@ -65,4 +67,42 @@ public class UsersBusiness : IUsersBusiness
         return isValidPassword == PasswordVerificationResult.Success;
     }
 
+    public async Task<string> IsValidRegisterRequest(RegisterRequest request)
+    {
+        request.name = Sanitization.SanitizeInput(request.name);
+        request.email = Sanitization.SanitizeInput(request.email);
+        var sanitizedPassword = Sanitization.SanitizeInput(request.password);
+
+        if (sanitizedPassword != request.password)
+        {
+            return "Invalid password";
+        }
+
+        request.name = request.name.Trim();
+        request.email = request.email.Trim();
+        request.password = sanitizedPassword.Trim();
+        request.confirmPassword = request.confirmPassword.Trim();
+
+        if (request.name.Length < 1)
+        {
+            return "Invalid name";
+        }
+        if (request.email.Length < 1 || !request.email.Contains('@'))
+        {
+            return "Invalid email";
+        }
+        if (request.password.Length < 8)
+        {
+            return "Password should have 8 letters atleast";
+        }
+        if (request.password != request.confirmPassword)
+        {
+            return "Invalid confirm password";
+        }
+        if (await EmailBusiness.EmailExists(request.email))
+        {
+            return "Something went wrong";
+        }
+        return string.Empty;
+    }
 }

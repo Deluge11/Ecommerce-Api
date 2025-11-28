@@ -11,6 +11,7 @@ using System.Text;
 using Options;
 using System.Net;
 using System.Net.Http.Headers;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Business_Layer.Business;
 
@@ -20,6 +21,7 @@ public class ProductsBusinees : IProductsBusiness
     public IImagesBusiness ImagesBusiness { get; }
     public IUsersBusiness UsersBusiness { get; }
     public IInventoryKeyGenerator InventoryKeyGenerator { get; }
+    public IFileSystem FileSystem { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
 
@@ -28,6 +30,7 @@ public class ProductsBusinees : IProductsBusiness
         IImagesBusiness imagesBusiness,
         IUsersBusiness usersBusiness,
         IInventoryKeyGenerator inventoryKeyGenerator,
+        IFileSystem fileSystem,
         StoreUrls storeUrls,
         HttpClient httpClient
         )
@@ -36,6 +39,7 @@ public class ProductsBusinees : IProductsBusiness
         ImagesBusiness = imagesBusiness;
         UsersBusiness = usersBusiness;
         InventoryKeyGenerator = inventoryKeyGenerator;
+        FileSystem = fileSystem;
         StoreUrls = storeUrls;
         HttpClient = httpClient;
     }
@@ -64,7 +68,7 @@ public class ProductsBusinees : IProductsBusiness
 
         if (userId == 0)
         {
-            return [];
+            return null;
         }
 
         return await ProductsData.GetMyProducts(userId);
@@ -84,7 +88,7 @@ public class ProductsBusinees : IProductsBusiness
     {
         if (userId < 1)
         {
-            return [];
+            return null;
         }
 
         return await ProductsData.GetProductByUserId(userId);
@@ -94,7 +98,7 @@ public class ProductsBusinees : IProductsBusiness
     {
         if (productId < 1)
         {
-            return [];
+            return null;
         }
 
         return await ProductsData.GetProductImages(productId);
@@ -140,6 +144,7 @@ public class ProductsBusinees : IProductsBusiness
         {
             createNewProductOperation.ErrorMessage = "invalid user id";
         }
+
         if (createNewProductOperation.ErrorMessage != null)
         {
             return createNewProductOperation;
@@ -147,7 +152,12 @@ public class ProductsBusinees : IProductsBusiness
 
         if (product.description != null)
         {
-            product.description = Sanitization.SanitizeInput(product.description.Trim());
+            product.description = product.description.Trim();
+
+            if (product.description.Length == 0)
+            {
+                product.description = null;
+            }
         }
 
         int newProductId = await ProductsData.InsertProduct(product, userId);
@@ -170,13 +180,18 @@ public class ProductsBusinees : IProductsBusiness
 
     public async Task<bool> AddStockQuantity(AddProductQuantity item)
     {
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+            return false;
+
         if (item.quantity < 1)
             return false;
 
         if (item.expiryDate < DateTime.UtcNow.AddDays(3))
             return false;
 
-        if (!await ProductsData.IsMyProduct(item.stockId, UsersBusiness.GetUserId()))
+        if (!await ProductsData.IsMyProduct(item.stockId, userId))
             return false;
 
         return await AddStockQuantityRequest(item);
@@ -184,11 +199,23 @@ public class ProductsBusinees : IProductsBusiness
 
     public async Task<bool> SetProductMainImage(int productId, int imageId)
     {
-        return await ProductsData.SetProductMainImage(productId, UsersBusiness.GetUserId(), imageId);
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+        {
+            return false;
+        }
+
+        return await ProductsData.SetProductMainImage(productId, userId, imageId);
     }
 
     public async Task<bool> UpdateProduct(UpdateProductRequest product)
     {
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+            return false;
+
         if (product.price < 1)
             return false;
 
@@ -199,17 +226,22 @@ public class ProductsBusinees : IProductsBusiness
 
         product.name = Sanitization.SanitizeInput(product.name);
 
-        return await ProductsData.UpdateProduct(product, UsersBusiness.GetUserId());
+        return await ProductsData.UpdateProduct(product, userId);
     }
 
     public async Task<bool> UpdateProductState(int productId, ProductState state)
     {
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId == 0)
+            return false;
+
         bool isValid = Enum.IsDefined(typeof(ProductState), state);
 
         if (!isValid)
             return false;
 
-        return await ProductsData.UpdateProductState(productId, UsersBusiness.GetUserId(), (int)state);
+        return await ProductsData.UpdateProductState(productId, userId, (int)state);
     }
 
     public async Task<List<string>> GetProductNames()
@@ -217,21 +249,31 @@ public class ProductsBusinees : IProductsBusiness
         return await ProductsData.GetProductNames();
     }
 
-    public async Task<bool> UploadImage(List<IFormFile> images, int productId)
+    public async Task<OperationResult<string>> UploadImage(List<IFormFile> images, int productId)
     {
-        int maxImages = 10;
+        OperationResult<string> result = new();
 
-        if (images == null)
-            return false;
+        int userId = UsersBusiness.GetUserId();
 
-        if (images.Count == 0)
-            return false;
+        if (userId == 0)
+        {
+            result.ErrorMessage = "Invalid user id";
+        }
 
-        if (images.Count > maxImages)
-            return false;
+        if (images == null || images.Count == 0)
+        {
+            result.ErrorMessage = "Images list is empty";
+        }
 
-        if (!await ProductsData.IsMyProduct(productId, UsersBusiness.GetUserId()))
-            return false;
+        if (!await ProductsData.IsMyProduct(productId, userId))
+        {
+            result.ErrorMessage = "You dont own this product";
+        }
+
+        if(result.ErrorMessage != null)
+        {
+            return result;
+        }
 
         string folderName = Path.Combine("Images/ProductImage", productId.ToString());
 
@@ -240,12 +282,28 @@ public class ProductsBusinees : IProductsBusiness
             Directory.CreateDirectory(folderName);
         }
 
-        int startImageCount = Directory.GetFiles(folderName).Length;
+        return await UploadProductImages(images, folderName, productId);
+    }
 
+    protected async Task<OperationResult<string>> UploadProductImages(List<IFormFile> images, string folderName, int productId)
+    {
+        OperationResult<string> result = new();
+
+        int maxImages = 10;
+
+        if (images.Count > maxImages)
+        {
+            result.ErrorMessage = $"You can only upload up to {maxImages} images";
+            return result;
+        }
+
+        int startImageCount = FileSystem.GetFilesCount(folderName);
+
+        int successCount = 0;
 
         for (int i = 0; i < images.Count; i++)
         {
-            if (i + startImageCount >= maxImages)
+            if (successCount + startImageCount >= maxImages)
             {
                 break;
             }
@@ -266,22 +324,31 @@ public class ProductsBusinees : IProductsBusiness
                 continue;
             }
 
-            await ImagesBusiness.StreamImage(filePath, file);
+            if (await ImagesBusiness.StreamImage(filePath, file))
+            {
+                successCount++;
+                result.Success = true;
+            }
 
-            if (startImageCount == 0)
+            if (startImageCount == 0 && successCount == 1)
             {
                 await SetProductMainImage(productId, imageId);
             }
         }
 
-        int folderCountAfterUploading = Directory.GetFiles(folderName).Length;
-
-        return startImageCount != folderCountAfterUploading;
+        if (result.Success)
+        {
+            result.Data = $"{successCount}/{images.Count} of images uploaded successfully";
+        }
+        else
+        {
+            result.ErrorMessage = "Upload images failed";
+        }
+        return result;
     }
 
     private async Task<bool> AddStockIntoStore(InsertProductRequest product, int productId, int userId)
     {
-
         var stock = new Stock
         {
             stockId = productId,

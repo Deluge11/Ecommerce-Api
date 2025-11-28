@@ -40,12 +40,18 @@ public class SalesBusiness : ISalesBusiness
 
     public async Task<List<SalesCatalog>> GetMySales(SalesState state, int lastSeenId)
     {
+        int userId = UsersBusiness.GetUserId();
+        if (userId == 0)
+        {
+            return null;
+        }
+
         if (!Enum.IsDefined(typeof(SalesState), state))
         {
             return null;
         }
 
-        return await SalesData.GetMySales((int)state, UsersBusiness.GetUserId(), lastSeenId);
+        return await SalesData.GetMySales((int)state, userId, lastSeenId);
     }
 
     public async Task<List<MerchantAccountingDetails>> GetNewMerchantAccountingDetails()
@@ -55,12 +61,22 @@ public class SalesBusiness : ISalesBusiness
 
     public async Task<decimal?> GetSalesProfits(int sellerId)
     {
+        if (sellerId < 1)
+        {
+            return 0;
+        }
+
         return await SalesData.GetSalesProfits(sellerId);
     }
 
     public async Task UpdateMerchantAccountState(int id, MerchantAccountingState state)
     {
         if (!Enum.IsDefined(typeof(MerchantAccountingState), state))
+        {
+            return;
+        }
+
+        if(id < 1)
         {
             return;
         }

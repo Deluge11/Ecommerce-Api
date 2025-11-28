@@ -39,9 +39,9 @@ public class UsersController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<ActionResult<string>> SignInUser(RegisterRequest request)
+    public async Task<IActionResult> SignInUser(RegisterRequest request)
     {
-        string inValidResult = await AuthenticateHelper.IsValidAuthenticate(request);
+        string inValidResult = await UsersBusiness.IsValidRegisterRequest(request);
 
         if (!string.IsNullOrEmpty(inValidResult))
         {
@@ -49,6 +49,11 @@ public class UsersController : ControllerBase
         }
 
         User user = await UsersBusiness.InsertUser(request.name, request.email, request.password);
+
+        if (user == null)
+        {
+            return BadRequest("Something went wrong");
+        }
 
         return Ok(await AuthenticateHelper.CreateToken(user));
     }

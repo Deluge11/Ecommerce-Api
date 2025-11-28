@@ -551,7 +551,7 @@ namespace Tests.BusinessTests
             {
                 new NewOrderRequest { StockId = 1, Quantity = 2 }
             };
-            cartDataMock.Setup(c => c.GetCartItemQuantities(10)).ReturnsAsync(items);
+            cartDataMock.Setup(c => c.GetCartItemQuantities(0)).ReturnsAsync(items);
             cartDataMock.Setup(c => c.SyncCartItemsCount(It.IsAny<DataTable>(), It.IsAny<int>())).ReturnsAsync(false);
 
             keyGenMock.Setup(k => k.GenerateJwt()).Returns("Fake_token");
@@ -586,7 +586,56 @@ namespace Tests.BusinessTests
 
             usersMock.Verify(u => u.GetUserId(), Times.Once);
             cartDataMock.Verify(c => c.SyncCartItemsCount(It.IsAny<DataTable>(), It.IsAny<int>()), Times.Never);
-            cartDataMock.Verify(c => c.GetCartItemQuantities(10), Times.Never);
+            cartDataMock.Verify(c => c.GetCartItemQuantities(0), Times.Never);
+            keyGenMock.Verify(k => k.GenerateJwt(), Times.Never);
+        }
+
+        [Fact]
+        public async Task SyncCartItemsWithStocks_ShouldReturnFalse_WhenGetCartItemsQuantitysIsNull()
+        {
+            var usersMock = new Mock<IUsersBusiness>();
+            var keyGenMock = new Mock<IInventoryKeyGenerator>();
+            var cartDataMock = new Mock<ICartItemData>();
+
+            usersMock.Setup(u => u.GetUserId()).Returns(10);
+
+
+            cartDataMock.Setup(c => c.GetCartItemQuantities(10)).ReturnsAsync([]);
+            cartDataMock.Setup(c => c.SyncCartItemsCount(It.IsAny<DataTable>(), It.IsAny<int>())).ReturnsAsync(false);
+
+            keyGenMock.Setup(k => k.GenerateJwt()).Returns("Fake_token");
+
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            handlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                });
+
+            var httpClient = new HttpClient(handlerMock.Object);
+
+            var storeUrls = new StoreUrls { SyncOrderRequest = "http://fake-url.com" };
+
+            var business = new CartItemBusiness(
+                cartDataMock.Object,
+                usersMock.Object,
+                keyGenMock.Object,
+                storeUrls,
+                httpClient
+            );
+
+            var result = await business.SyncCartItemsWithStocks();
+
+            Assert.False(result);
+
+            usersMock.Verify(u => u.GetUserId(), Times.AtLeastOnce);
+            cartDataMock.Verify(c => c.GetCartItemQuantities(10), Times.Once);
+            cartDataMock.Verify(c => c.SyncCartItemsCount(It.IsAny<DataTable>(), It.IsAny<int>()), Times.Never);
             keyGenMock.Verify(k => k.GenerateJwt(), Times.Never);
         }
 
@@ -688,10 +737,66 @@ namespace Tests.BusinessTests
 
             Assert.False(result);
 
+
+            cartDataMock.Verify(c => c.SyncCartItemsCount(It.IsAny<DataTable>(), It.IsAny<int>()), Times.Never);
+            cartDataMock.Verify(c => c.GetCartItemQuantities(It.IsAny<int>()), Times.Once);
+            usersMock.Verify(u => u.GetUserId(), Times.AtLeastOnce);
+            keyGenMock.Verify(k => k.GenerateJwt(), Times.Once);
+        }
+
+        [Fact]
+        public async Task SyncCartItemsWithStocks_ShouldReturnFalse_WhenResponseListIsNull()
+        {
+            var usersMock = new Mock<IUsersBusiness>();
+            var keyGenMock = new Mock<IInventoryKeyGenerator>();
+            var cartDataMock = new Mock<ICartItemData>();
+
+            usersMock.Setup(u => u.GetUserId()).Returns(10);
+
+            var items = new List<NewOrderRequest>
+            {
+                new NewOrderRequest { StockId = 1, Quantity = 2 }
+            };
+            cartDataMock.Setup(c => c.GetCartItemQuantities(10)).ReturnsAsync(items);
+            cartDataMock.Setup(c => c.SyncCartItemsCount(It.IsAny<DataTable>(), 10)).ReturnsAsync(true);
+
+            keyGenMock.Setup(k => k.GenerateJwt()).Returns("fake_token");
+
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            handlerMock
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                    Content = new StringContent("null", Encoding.UTF8, "application/json")
+                });
+
+            var httpClient = new HttpClient(handlerMock.Object);
+
+            var storeUrls = new StoreUrls { SyncOrderRequest = "http://fake-url.com" };
+
+            var business = new CartItemBusiness(
+                cartDataMock.Object,
+                usersMock.Object,
+                keyGenMock.Object,
+                storeUrls,
+                httpClient
+            );
+
+            var result = await business.SyncCartItemsWithStocks();
+
+            Assert.False(result);
+
             cartDataMock.Verify(c => c.SyncCartItemsCount(It.IsAny<DataTable>(), It.IsAny<int>()), Times.Never);
             usersMock.Verify(u => u.GetUserId(), Times.AtLeastOnce);
             keyGenMock.Verify(k => k.GenerateJwt(), Times.Once);
         }
+
 
         [Fact]
         public async Task SyncCartItemsWithStocks_ShouldReturnTrue_WhenAllValid()

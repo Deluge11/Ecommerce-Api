@@ -22,7 +22,7 @@ public class CartsBusiness : ICartsBusiness
 
         if(userId == 0)
         {
-            return [];
+            return null;
         }
 
         return await CartsData.GetCartItems(userId);

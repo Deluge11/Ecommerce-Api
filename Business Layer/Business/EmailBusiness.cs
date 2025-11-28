@@ -15,8 +15,14 @@ public class EmailBusiness : IEmailBusiness
     }
 
 
-    public Task<bool> EmailExists(string email)
+    public async Task<bool> EmailExists(string email)
     {
-        return EmailData.EmailExists(email.Trim());
+        email = email.Trim();
+
+        if (email.Length < 1 || !email.Contains("@"))
+        {
+            return false;
+        }
+        return await EmailData.EmailExists(email);
     }
 }

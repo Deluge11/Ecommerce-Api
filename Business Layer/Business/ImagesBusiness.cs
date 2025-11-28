@@ -1,78 +1,93 @@
 ﻿
 using Business_Layer.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Business_Layer.Business;
 
 public class ImagesBusiness : IImagesBusiness
 {
+    public ILogger<ImagesBusiness> Logger { get; }
+
+    public ImagesBusiness(ILogger<ImagesBusiness> logger)
+    {
+        Logger = logger;
+    }
+
     public bool IsAnimatedWebP(Stream webpStream)
     {
-        byte[] buffer = new byte[webpStream.Length];
+        if (webpStream == null || webpStream.Length == 0)
+        {
+            return false;
+        }
+
+        byte[] buffer = new byte[256];
         webpStream.Read(buffer, 0, buffer.Length);
 
         string content = System.Text.Encoding.ASCII.GetString(buffer);
 
         return content.Contains("ANIM");
     }
-    public async Task StreamImage(string filePath, IFormFile file)
+    public async Task<bool> StreamImage(string filePath, IFormFile file)
     {
-        if (filePath == null || filePath.Length < 1)
+        if (filePath == null || file == null)
         {
-            return;
+            return false;
         }
-        if (file == null || file.Length < 1)
+
+        filePath = filePath.Trim();
+
+        if (filePath.Length < 1 || file.Length < 1)
         {
-            return;
+            return false;
         }
 
         try
         {
-            using var fileStream = new FileStream(filePath, FileMode.Create);
-            await file.CopyToAsync(fileStream);
+            using var fileStream = new FileStream(filePath, FileMode.CreateNew);
+           await file.CopyToAsync(fileStream);
+            return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
+            Logger.LogError("Failed to save image : {ex}", ex);
+            return false;
         }
     }
     public async Task<bool> IsValidImage(IFormFile file)
     {
-        if (file == null || file.Length < 1)
-        {
+        if (file == null || file.Length < 1) 
             return false;
-        }
 
-        long maxFileSizeBytes = 3 * 1024 * 1024;
-        var allowedExtensions = new[] { ".webp" };
-        var allowedContentTypes = new[] { "image/webp" };
-        byte[] webpMagicNumber = new byte[] { 0x52, 0x49, 0x46, 0x46 };
-        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        const long maxFileSizeBytes = 3 * 1024 * 1024;
+        if (file.Length > maxFileSizeBytes) 
+            return false;
 
-        byte[] buffer = new byte[webpMagicNumber.Length];
+        var extension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+        if (extension != ".webp") 
+            return false;
+
+        var contentType = file.ContentType?.ToLowerInvariant();
+        if (contentType != "image/webp") 
+            return false;
+
+        byte[] header = new byte[64];
         using var stream = file.OpenReadStream();
-        int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-
-
-        if (!allowedExtensions.Contains(extension))
+        int read = await stream.ReadAsync(header, 0, header.Length);
+        if (read < 12) 
             return false;
 
-        if (!allowedContentTypes.Contains(file.ContentType.ToLower()))
+        if (!(header[0] == (byte)'R' && header[1] == (byte)'I' && header[2] == (byte)'F' && header[3] == (byte)'F'))
             return false;
 
-        if (file.Length > maxFileSizeBytes)
+        if (!(header[8] == (byte)'W' && header[9] == (byte)'E' && header[10] == (byte)'B' && header[11] == (byte)'P'))
             return false;
 
-        if (bytesRead != webpMagicNumber.Length)
-            return false;
-
-        if (!buffer.SequenceEqual(webpMagicNumber))
-            return false;
-
-        if (IsAnimatedWebP(stream))
+        if (IsAnimatedWebP(stream)) 
             return false;
 
         return true;
     }
+
 
 }

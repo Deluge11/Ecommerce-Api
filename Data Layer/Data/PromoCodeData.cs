@@ -21,9 +21,8 @@ public class PromoCodeData : IPromoCodeData
     }
 
 
-    public async Task<OperationResult<List<PromoCode>>> GetPromoCodes(int userId)
+    public async Task<List<PromoCode>> GetPromoCodes(int userId)
     {
-        var result = new OperationResult<List<PromoCode>>();
         List<PromoCode> list = new();
         string query = @"SELECT * FROM PromoCodes WHERE userId=@userId";
 
@@ -51,15 +50,12 @@ public class PromoCodeData : IPromoCodeData
 
                 });
             }
-            result.Success = true;
-            result.Data = list;
+            return list;
         }
         catch (Exception)
         {
-            result.Success = false;
-            result.ErrorType = ErrorType.ServerIsDown;
+            return null;
         }
-        return result;
     }
     public async Task<OperationResult<bool>> AddPromoCode(AddPromocode promoCode, int userId)
     {
@@ -92,9 +88,8 @@ public class PromoCodeData : IPromoCodeData
         }
         return result;
     }
-    public async Task<OperationResult<bool>> TogglePromocode(int promocodeId, int userId)
+    public async Task<bool> TogglePromocode(int promocodeId, int userId)
     {
-        var result = new OperationResult<bool>();
 
         string query = @"UPDATE PromoCodes
                             SET isEnable = CASE 
@@ -112,13 +107,11 @@ public class PromoCodeData : IPromoCodeData
         try
         {
             await sqlConnection.OpenAsync();
-            result.Success = await sqlCommand.ExecuteNonQueryAsync() > 0;
+            return await sqlCommand.ExecuteNonQueryAsync() > 0;
         }
         catch (Exception)
         {
-            result.Success = false;
-            result.ErrorType = ErrorType.ServerIsDown;
+            return false;
         }
-        return result;
     }
 }

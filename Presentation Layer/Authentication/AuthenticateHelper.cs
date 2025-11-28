@@ -7,24 +7,18 @@ using Business_Layer.Interfaces;
 using Options;
 using Presentation_Layer.Authorization;
 using Models;
+using Business_Layer.Sanitizations;
 
 namespace Presentation_Layer.Authentication;
 
 public class AuthenticateHelper
 {
     public JwtOptions JwtOptions { get; }
-    public AuthorizeHelper AuthorizeHelper { get; }
-    public IEmailBusiness EmailBusiness { get; }
     public IAuthorizeBusiness AuthorizeBusiness { get; }
 
-    public AuthenticateHelper(
-        JwtOptions jwtOptions,
-        IEmailBusiness emailBusiness,
-        IAuthorizeBusiness authorizeBusiness
-        )
+    public AuthenticateHelper(JwtOptions jwtOptions, IAuthorizeBusiness authorizeBusiness)
     {
         JwtOptions = jwtOptions;
-        EmailBusiness = emailBusiness;
         AuthorizeBusiness = authorizeBusiness;
     }
 
@@ -57,24 +51,6 @@ public class AuthenticateHelper
         var securityToken = tokenHandler.CreateToken(tokenDescriptor);
 
         return tokenHandler.WriteToken(securityToken);
-    }
-
-
-    public async Task<string> IsValidAuthenticate(RegisterRequest request)
-    {
-        if (request.password.Length < 8)
-        {
-            return "Password should have 8 letters atleast";
-        }
-        if (request.password != request.confirmPassword)
-        {
-            return "Invalid confirm password";
-        }
-        if (await EmailBusiness.EmailExists(request.email))
-        {
-            return "Something went wrong";
-        }
-        return string.Empty;
     }
 
 }

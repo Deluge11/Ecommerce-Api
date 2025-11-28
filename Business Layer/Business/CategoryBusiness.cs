@@ -22,6 +22,12 @@ public class CategoryBusiness : ICategoryBusiness
     public async Task<bool> Add(string name)
     {
         name = Sanitization.SanitizeInput(name.Trim());
+
+        if(name.Length < 1)
+        {
+            return false;
+        }
+
         return await CategoryData.Add(name);
     }
 
@@ -76,6 +82,12 @@ public class CategoryBusiness : ICategoryBusiness
     public async Task<bool> Update(int categoyId, string categoryName)
     {
         categoryName = Sanitization.SanitizeInput(categoryName.Trim());
+
+        if(categoryName.Length < 1)
+        {
+            return false;
+        }
+
         return await CategoryData.Update(categoyId, categoryName);
     }
 }

@@ -28,7 +28,7 @@ public class CartsController : ControllerBase
     {
         var count = await CartsBusiness.GetCartItemsCount();
         return count != -1 ?
-            Ok(count) : StatusCode(500);
+            Ok(count) : BadRequest();
     }
 
 
@@ -38,7 +38,7 @@ public class CartsController : ControllerBase
     {
         var items = await CartsBusiness.GetCartItems();
         return items != null ?
-            Ok(items) : StatusCode(500);
+            Ok(items) : BadRequest();
     }
 
 
@@ -48,7 +48,7 @@ public class CartsController : ControllerBase
     {
         var totalPrice = await CartsBusiness.GetTotalPrice();
         return totalPrice != -1 ?
-            Ok(totalPrice) : StatusCode(500);
+            Ok(totalPrice) : BadRequest();
     }
 
 

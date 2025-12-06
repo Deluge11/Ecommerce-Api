@@ -1,15 +1,12 @@
 
-# Ignore build folders
 bin/
 obj/
 out/
 
-# Ignore Visual Studio folders
+
 .vs/
 
-# Ignore user-specific project files
 *.user
 *.suo
 
-# Ignore appsettings if you don't want to push them
 Presentation Layer/appsettings.json

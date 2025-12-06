@@ -53,8 +53,6 @@ public class PayPalBusiness : IPayPalBusiness
 
 
 
-
-
     public virtual async Task<OperationResult<PayPalPaymentOrder>> CreateOrder()
     {
         OperationResult<PayPalPaymentOrder> createPaymentOrderOpration = new();
@@ -130,19 +128,14 @@ public class PayPalBusiness : IPayPalBusiness
         }
 
         var paymentDetails = await GetPaymentDetails(paymentId);
-        if (paymentDetails == null || paymentDetails.orderId < 1)
+        if (paymentDetails == null || paymentDetails.orderId < 1 || paymentDetails.stateId == (int)PaymentState.Completed)
         {
             return false;
         }
 
-        if (!await UpdatePaymentStateId(paymentId, PaymentState.Completed))
-        {
-            Logger.LogCritical("Update payment state to completed failed, PaymentId {id}", paymentId);
-        }
-        if (!await OrdersBusiness.ConfrimOrderInStore(paymentDetails.orderId))
-        {
-            Logger.LogCritical("Confirm Order in store failed, OrderId {id}", paymentDetails.orderId);
-        }
+        Logger.LogWarning("Webhook success ,start order proccess ,PaymentId {paymentId}", paymentId);
+
+        await CompleteOrderReserve(paymentDetails);
 
         return true;
     }
@@ -156,6 +149,18 @@ public class PayPalBusiness : IPayPalBusiness
         }
     }
 
+
+    protected virtual async Task CompleteOrderReserve(PaymentDetails paymentDetails)
+    {
+        if (!await UpdatePaymentStateId(paymentDetails.paymentId, PaymentState.Completed))
+        {
+            Logger.LogCritical("Update payment state to completed failed, PaymentId {id}", paymentDetails.paymentId);
+        }
+        if (!await OrdersBusiness.ConfrimOrderInStore(paymentDetails.orderId))
+        {
+            Logger.LogCritical("Confirm Order in store failed, OrderId {id}", paymentDetails.orderId);
+        }
+    }
     protected virtual string? GetPaymentIdFromBody(JsonDocument body)
     {
         if (!body.RootElement.TryGetProperty("event_type", out var eventType))
@@ -310,10 +315,7 @@ public class PayPalBusiness : IPayPalBusiness
             return false;
         }
 
-        var jsonContent = new StringContent(
-            JsonSerializer.Serialize(verifyRequest),
-            Encoding.UTF8,
-            "application/json");
+        var jsonContent = new StringContent(JsonSerializer.Serialize(verifyRequest), Encoding.UTF8, "application/json");
 
         using var client = new HttpClient();
 

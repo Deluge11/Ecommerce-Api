@@ -3,10 +3,10 @@ bin/
 obj/
 out/
 
-
 .vs/
 
 *.user
 *.suo
 
 Presentation Layer/appsettings.json
+

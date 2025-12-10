@@ -37,6 +37,7 @@ var paypalOptions = builder.Configuration.GetSection("PayPalKeys").Get<PaypalOpt
 var paypalUrls = builder.Configuration.GetSection("Urls").Get<PaypalUrls>();
 var storeUrls = builder.Configuration.GetSection("StoreUrls").Get<StoreUrls>();
 var inventoryOptions = builder.Configuration.GetSection("Ecommerce_Inventory_Shared_Key").Get<InventoryOptions>();
+var cacheKeys = builder.Configuration.GetSection("CacheKeys").Get<CacheKeys>();
 var productTrie = new ProductTrie();
 
 
@@ -104,6 +105,7 @@ builder.Services.AddScoped<IAuthorizeData, AuthorizeData>();
 builder.Services.AddScoped<AuthenticateHelper>();
 builder.Services.AddScoped<AuthorizeHelper>();
 
+builder.Services.AddMemoryCache();
 
 builder.Services.AddSingleton<TimerService>(provider =>
 {

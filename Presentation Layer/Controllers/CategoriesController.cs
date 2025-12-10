@@ -27,7 +27,7 @@ public class CategoriesController : ControllerBase
     {
         var result = await CategoryBusiness.GetAll();
         return result != null ?
-            Ok(result) : StatusCode(500);
+            Ok(result) : NotFound();
     }
 
 

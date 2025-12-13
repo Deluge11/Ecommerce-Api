@@ -5,6 +5,7 @@ namespace Business_Layer.Interfaces;
 
 public interface IOrdersBusiness
 {
+    Task<List<Order>> GetMyOrders();
     Task<List<Order>> GetOrdersByUserId(int userId);
     Task<Order> GetOrderById(int orderId);
     Task<OperationResult<Order>> CreateOrder();

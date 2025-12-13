@@ -35,7 +35,7 @@ public class OrdersController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<Order>>> GetMyOrders()
     {
-        var orders = await OrdersBusiness.GetOrdersByUserId(UsersBusiness.GetUserId());
+        var orders = await OrdersBusiness.GetMyOrders();
         return orders != null ?
             Ok(orders) : NotFound();
     }

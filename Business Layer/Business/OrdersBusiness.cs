@@ -89,6 +89,7 @@ public class OrdersBusiness : IOrdersBusiness
         return operationResult;
     }
 
+
     public async Task<Order> GetOrderById(int orderId)
     {
         if (orderId < 1)
@@ -121,6 +122,18 @@ public class OrdersBusiness : IOrdersBusiness
         }
 
         return await OrdersData.GetOrderDetails(orderId, userId);
+    }
+
+    public async Task<List<Order>> GetMyOrders()
+    {
+        int userId = UsersBusiness.GetUserId();
+
+        if (userId <= 0)
+        {
+            return [];
+        }
+
+        return await OrdersData.GetOrdersByUserId(userId);
     }
 
     public async Task<List<Order>> GetOrdersByUserId(int userId)
@@ -196,4 +209,6 @@ public class OrdersBusiness : IOrdersBusiness
 
         return await OrdersData.GetOrderItemQuantities(orderId);
     }
+
+   
 }

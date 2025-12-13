@@ -8,6 +8,7 @@ using Models;
 using Data_Layer.Data;
 using System.Net.Http.Headers;
 using System.ClientModel.Primitives;
+using Microsoft.Extensions.Logging;
 
 namespace Business_Layer.Business;
 
@@ -18,6 +19,7 @@ public class OrdersBusiness : IOrdersBusiness
         IUsersBusiness usersBusiness,
         ICartItemBusiness cartItemBusiness,
         IInventoryKeyGenerator inventoryKeyGenerator,
+        ILogger<OrdersBusiness> logger,
         StoreUrls storeUrls,
         HttpClient httpClient
         )
@@ -27,16 +29,17 @@ public class OrdersBusiness : IOrdersBusiness
         UsersBusiness = usersBusiness;
         CartItemBusiness = cartItemBusiness;
         InventoryKeyGenerator = inventoryKeyGenerator;
+        Logger = logger;
         HttpClient = httpClient;
     }
 
     public IOrdersData OrdersData { get; }
-    public StoreUrls StoreUrls { get; }
     public IUsersBusiness UsersBusiness { get; }
     public ICartItemBusiness CartItemBusiness { get; }
     public IInventoryKeyGenerator InventoryKeyGenerator { get; }
+    public ILogger<OrdersBusiness> Logger { get; }
+    public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
-    public InventoryOptions InventoryOptions { get; }
 
 
 
@@ -147,12 +150,17 @@ public class OrdersBusiness : IOrdersBusiness
     }
     public async Task<bool> CreateStoreOrder(int orderId)
     {
-        if(orderId <= 0)
+        if (orderId <= 0)
         {
             return false;
         }
 
         var items = await GetOrderItemQuantities(orderId);
+
+        if (items == null || items.Count == 0)
+        {
+            return false;
+        }
 
         try
         {
@@ -167,9 +175,15 @@ public class OrdersBusiness : IOrdersBusiness
 
             return response.StatusCode == System.Net.HttpStatusCode.OK;
         }
-        catch
+        catch (HttpRequestException ex)
         {
+            Logger.LogWarning(ex, "Failed to create order with store service | Order Id: {orderId}", orderId);
             return false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error while createing order with store service | Order Id: {orderId}", orderId);
+            throw;
         }
     }
 
@@ -194,9 +208,15 @@ public class OrdersBusiness : IOrdersBusiness
             var response = await HttpClient.PatchAsync(StoreUrls.ConfrimOrder + $"{orderId}", null);
             return response.StatusCode == System.Net.HttpStatusCode.OK;
         }
-        catch
+        catch (HttpRequestException ex)
         {
+            Logger.LogWarning(ex, "Failed to confirm order with store service | Order Id: {orderId}", orderId);
             return false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error while confirming order with store service | Order Id: {orderId}", orderId);
+            throw;
         }
     }
 
@@ -210,5 +230,5 @@ public class OrdersBusiness : IOrdersBusiness
         return await OrdersData.GetOrderItemQuantities(orderId);
     }
 
-   
+
 }

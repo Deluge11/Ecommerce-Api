@@ -38,11 +38,11 @@ public class PromoCodeBusiness : IPromoCodeBusiness
 
         promoCode.code = Sanitization.SanitizeInput(promoCode.code);
 
-        string verifyResult = await VerifyPromoCode(promoCode);
+        string errorMessage = await VerifyPromoCode(promoCode);
 
-        if (!string.IsNullOrEmpty(verifyResult))
+        if (!string.IsNullOrEmpty(errorMessage))
         {
-            result.ErrorMessage = verifyResult;
+            result.ErrorMessage = errorMessage;
             result.ErrorType = ErrorType.BadRequest;
             return result;
         }

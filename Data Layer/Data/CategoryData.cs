@@ -125,8 +125,8 @@ public class CategoryData : ICategoryData
     {
         string query = "UPDATE Categories SET image=@image WHERE id=@id";
 
-        SqlConnection sqlConnection = new SqlConnection(ConnectionString);
-        SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+        using SqlConnection sqlConnection = new SqlConnection(ConnectionString);
+        using SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
 
         sqlCommand.Parameters.Add(new SqlParameter("@image", SqlDbType.VarChar) { Value = filePath });
         sqlCommand.Parameters.Add(new SqlParameter("@id", SqlDbType.Int) { Value = categoryId });

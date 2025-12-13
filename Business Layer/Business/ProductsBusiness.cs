@@ -11,7 +11,8 @@ using System.Text;
 using Options;
 using System.Net;
 using System.Net.Http.Headers;
-using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Extensions.Logging;
+
 
 namespace Business_Layer.Business;
 
@@ -22,6 +23,7 @@ public class ProductsBusinees : IProductsBusiness
     public IUsersBusiness UsersBusiness { get; }
     public IInventoryKeyGenerator InventoryKeyGenerator { get; }
     public IFileSystem FileSystem { get; }
+    public ILogger<ProductsBusinees> Logger { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
 
@@ -31,6 +33,7 @@ public class ProductsBusinees : IProductsBusiness
         IUsersBusiness usersBusiness,
         IInventoryKeyGenerator inventoryKeyGenerator,
         IFileSystem fileSystem,
+        ILogger<ProductsBusinees> logger,
         StoreUrls storeUrls,
         HttpClient httpClient
         )
@@ -40,6 +43,7 @@ public class ProductsBusinees : IProductsBusiness
         UsersBusiness = usersBusiness;
         InventoryKeyGenerator = inventoryKeyGenerator;
         FileSystem = fileSystem;
+        Logger = logger;
         StoreUrls = storeUrls;
         HttpClient = httpClient;
     }
@@ -117,49 +121,50 @@ public class ProductsBusinees : IProductsBusiness
         return await ProductsData.GetProductsCatalog(request);
     }
 
-    public async Task<OperationResult<int>> InsertProduct(InsertProductRequest product)
+    protected string InsertedProductErrorMessage(InsertProductRequest product)
     {
-        OperationResult<int> createNewProductOperation = new();
         int userId = UsersBusiness.GetUserId();
 
         if (userId == 0)
         {
-            createNewProductOperation.ErrorMessage = "invalid user id";
+            return "invalid user id";
         }
         if (product.price < 1)
         {
-            createNewProductOperation.ErrorMessage = "Invalid price value";
+            return "Invalid price value";
         }
         if (product.categoryId < 1)
         {
-            createNewProductOperation.ErrorMessage = "Invalid category id value";
+            return "Invalid category id value";
         }
         if (product.weight < 0.2m)
         {
-            createNewProductOperation.ErrorMessage = "weight value less than 0.2Kg";
+            return "weight value less than 0.2Kg";
         }
-
-        product.name = Sanitization.SanitizeInput(product.name.Trim());
         if (product.name.Length < 1)
         {
-            createNewProductOperation.ErrorMessage = "invalid user id";
+            return "invalid user id";
         }
+        return string.Empty;
+    }
+    public async Task<OperationResult<int>> InsertProduct(InsertProductRequest product)
+    {
+        OperationResult<int> createNewProductOperation = new();
 
-        if (createNewProductOperation.ErrorMessage != null)
+        product.name = Sanitization.SanitizeInput(product.name.Trim());
+
+        string errorMessage = InsertedProductErrorMessage(product);
+
+        if (!string.IsNullOrEmpty(errorMessage))
         {
+            createNewProductOperation.ErrorMessage = errorMessage;
             return createNewProductOperation;
         }
 
-        if (product.description != null)
-        {
-            product.description = product.description.Trim();
+        product.description = product.description?.Trim().Length == 0 ? null : product.description?.Trim();
 
-            if (product.description.Length == 0)
-            {
-                product.description = null;
-            }
-        }
 
+        int userId = UsersBusiness.GetUserId();
         int newProductId = await ProductsData.InsertProduct(product, userId);
 
         if (newProductId == 0)
@@ -270,7 +275,7 @@ public class ProductsBusinees : IProductsBusiness
             result.ErrorMessage = "You dont own this product";
         }
 
-        if(result.ErrorMessage != null)
+        if (result.ErrorMessage != null)
         {
             return result;
         }
@@ -359,20 +364,32 @@ public class ProductsBusinees : IProductsBusiness
         try
         {
             string token = InventoryKeyGenerator.GenerateJwt();
-
-            HttpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var json = JsonSerializer.Serialize(stock);
             var body = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await HttpClient.PostAsync(StoreUrls.AddStock, body);
-            return response.StatusCode == HttpStatusCode.OK;
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("Failed to add stock | StatusCode: {StatusCode}", response.StatusCode);
+                return false;
+            }
+
+            return true;
         }
-        catch
+        catch (HttpRequestException ex)
         {
+            Logger.LogWarning(ex, "Cannot reach inventory service while adding stock");
             return false;
         }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error while adding stock");
+            throw;
+        }
+
     }
 
     private async Task<bool> AddStockQuantityRequest(AddProductQuantity request)
@@ -380,19 +397,31 @@ public class ProductsBusinees : IProductsBusiness
         try
         {
             string token = InventoryKeyGenerator.GenerateJwt();
-
-            HttpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var json = JsonSerializer.Serialize(request);
             var body = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await HttpClient.PostAsync(StoreUrls.AddStockQuantity, body);
-            return response.StatusCode == HttpStatusCode.OK;
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("Failed to add stock quantity | StatusCode: {StatusCode}", response.StatusCode);
+                return false;
+            }
+
+            return true;
         }
-        catch
+        catch (HttpRequestException ex)
         {
+            Logger.LogWarning(ex, "Cannot reach inventory service while adding stock quantity");
             return false;
         }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error while adding stock quantity");
+            throw;
+        }
+
     }
 }

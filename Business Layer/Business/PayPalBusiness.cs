@@ -133,8 +133,6 @@ public class PayPalBusiness : IPayPalBusiness
             return false;
         }
 
-        Logger.LogWarning("Webhook success ,start order proccess ,PaymentId {paymentId}", paymentId);
-
         await CompleteOrderReserve(paymentDetails);
 
         return true;
@@ -231,19 +229,39 @@ public class PayPalBusiness : IPayPalBusiness
                 ApprovalLink = approvalLink
             };
         }
-        catch (Exception)
+        catch (HttpRequestException ex)
         {
+            Logger.LogWarning(ex, "PayPal service not reachable");
             return null;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error while creating PayPal order");
+            throw;
         }
     }
     protected virtual async Task<CreatePayoutResponse> PayoutResponse(CreatePayoutRequest body)
     {
-        var client = PayPalClient.Client(PaypalOptions.ClientId, PaypalOptions.ClientSecret);
-        var request = new PayoutsPostRequest();
-        request.RequestBody(body);
-        var response = await client.Execute(request);
-        return response.Result<CreatePayoutResponse>();
+        try
+        {
+            var client = PayPalClient.Client(PaypalOptions.ClientId, PaypalOptions.ClientSecret);
+            var request = new PayoutsPostRequest();
+            request.RequestBody(body);
+            var response = await client.Execute(request);
+            return response.Result<CreatePayoutResponse>();
+        }
+        catch (HttpRequestException ex)
+        {
+            Logger.LogWarning(ex, "PayPal service not reachable while creating payout.");
+            return null; 
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error while creating PayPal payout.");
+            throw;
+        }
     }
+
 
     protected virtual async Task<PaymentOrder> GetPaymentOrder(string paymentId)
     {
@@ -260,9 +278,15 @@ public class PayPalBusiness : IPayPalBusiness
             var response = await client.Execute(request);
             return response.Result<PaymentOrder>();
         }
-        catch (Exception)
+        catch (HttpRequestException ex)
         {
+            Logger.LogWarning(ex, "Failed to reach PayPal service while capturing payment | PaymentId: {PaymentId}", paymentId);
             return null;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error while capturing PayPal payment | PaymentId: {PaymentId}", paymentId);
+            throw;
         }
 
     }
@@ -291,68 +315,6 @@ public class PayPalBusiness : IPayPalBusiness
         return true;
     }
 
-    protected virtual async Task<bool> VerifyPaypalEvent(JsonDocument body, IHeaderDictionary headers)
-    {
-        var verifyRequest = new object();
-
-        try
-        {
-            //Paypal webhook headers
-            verifyRequest = new
-            {
-                auth_algo = headers["Paypal-Auth-Algo"].FirstOrDefault(),
-                cert_url = headers["Paypal-Cert-Url"].FirstOrDefault(),
-                transmission_id = headers["Paypal-Transmission-Id"].FirstOrDefault(),
-                transmission_sig = headers["Paypal-Transmission-Sig"].FirstOrDefault(),
-                transmission_time = headers["Paypal-Transmission-Time"].FirstOrDefault(),
-                webhook_event = body.RootElement,
-                webhook_id = PaypalOptions.WebhookId
-            };
-
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-
-        var jsonContent = new StringContent(JsonSerializer.Serialize(verifyRequest), Encoding.UTF8, "application/json");
-
-        using var client = new HttpClient();
-
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetAccessToken());
-
-        var response = await client.PostAsync(
-            "https://api.sandbox.paypal.com/v1/notifications/verify-webhook-signature",
-            jsonContent);
-
-
-        if (!response.IsSuccessStatusCode)
-            return false;
-
-        var responseString = await response.Content.ReadAsStringAsync();
-
-        using var doc = JsonDocument.Parse(responseString);
-        var status = doc.RootElement.GetProperty("verification_status").GetString();
-
-        return status == "SUCCESS";
-    }
-    protected virtual async Task<string> GetAccessToken()
-    {
-        var client = new HttpClient();
-        var byteArray = Encoding.ASCII.GetBytes($"{PaypalOptions.ClientId}:{PaypalOptions.ClientSecret}");
-
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-
-        var postData = new Dictionary<string, string>
-                    {
-                        { "grant_type", "client_credentials" }
-                    };
-
-        var response = await client.PostAsync("https://api.sandbox.paypal.com/v1/oauth2/token", new FormUrlEncodedContent(postData));
-        string content = await response.Content.ReadAsStringAsync();
-        var json = JsonDocument.Parse(content);
-        return json.RootElement.GetProperty("access_token").GetString();
-    }
 
     protected virtual async Task CreatePayout(MerchantAccountingDetails sellerAccounting)
     {
@@ -435,7 +397,71 @@ public class PayPalBusiness : IPayPalBusiness
             ApplicationContext = applicationContext
 
         };
+
     }
+
+    protected virtual async Task<bool> VerifyPaypalEvent(JsonDocument body, IHeaderDictionary headers)
+    {
+        var verifyRequest = new object();
+
+        try
+        {
+            verifyRequest = new
+            {
+                auth_algo = headers["Paypal-Auth-Algo"].FirstOrDefault(),
+                cert_url = headers["Paypal-Cert-Url"].FirstOrDefault(),
+                transmission_id = headers["Paypal-Transmission-Id"].FirstOrDefault(),
+                transmission_sig = headers["Paypal-Transmission-Sig"].FirstOrDefault(),
+                transmission_time = headers["Paypal-Transmission-Time"].FirstOrDefault(),
+                webhook_event = body.RootElement,
+                webhook_id = PaypalOptions.WebhookId
+            };
+
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
+        var jsonContent = new StringContent(JsonSerializer.Serialize(verifyRequest), Encoding.UTF8, "application/json");
+
+        using var client = new HttpClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetAccessToken());
+
+        var response = await client.PostAsync(
+            "https://api.sandbox.paypal.com/v1/notifications/verify-webhook-signature",
+            jsonContent);
+
+
+        if (!response.IsSuccessStatusCode)
+            return false;
+
+        var responseString = await response.Content.ReadAsStringAsync();
+
+        using var doc = JsonDocument.Parse(responseString);
+        var status = doc.RootElement.GetProperty("verification_status").GetString();
+
+        return status == "SUCCESS";
+    }
+    protected virtual async Task<string> GetAccessToken()
+    {
+        var client = new HttpClient();
+        var byteArray = Encoding.ASCII.GetBytes($"{PaypalOptions.ClientId}:{PaypalOptions.ClientSecret}");
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
+        var postData = new Dictionary<string, string>
+                    {
+                        { "grant_type", "client_credentials" }
+                    };
+
+        var response = await client.PostAsync("https://api.sandbox.paypal.com/v1/oauth2/token", new FormUrlEncodedContent(postData));
+        string content = await response.Content.ReadAsStringAsync();
+        var json = JsonDocument.Parse(content);
+        return json.RootElement.GetProperty("access_token").GetString();
+    }
+
 
 }
 

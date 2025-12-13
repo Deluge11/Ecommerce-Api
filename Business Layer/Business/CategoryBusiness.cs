@@ -6,6 +6,7 @@ using Models;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using Options;
+using Microsoft.Extensions.Logging;
 
 namespace Business_Layer.Business;
 
@@ -13,18 +14,21 @@ public class CategoryBusiness : ICategoryBusiness
 {
     public ICategoryData CategoryData { get; }
     public IImagesBusiness ImagesBusiness { get; }
+    public ILogger Logger { get; }
     public IMemoryCache Cache { get; }
     public CacheKeys CacheKeys { get; }
 
     public CategoryBusiness(
         ICategoryData categoryData,
         IImagesBusiness imagesBusiness,
+        ILogger<CategoryBusiness> logger,
         IMemoryCache cache,
         CacheKeys cacheKeys
         )
     {
         CategoryData = categoryData;
         ImagesBusiness = imagesBusiness;
+        Logger = logger;
         Cache = cache;
         CacheKeys = cacheKeys;
     }
@@ -65,11 +69,19 @@ public class CategoryBusiness : ICategoryBusiness
         {
             return false;
         }
-
-        if (!string.IsNullOrEmpty(category.image) && File.Exists(category.image))
+        try
         {
-            File.Delete(category.image);
+            if (!string.IsNullOrEmpty(category.image) && File.Exists(category.image))
+            {
+                File.Delete(category.image);
+            }
         }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Failed to delete old category image | CategoryId: {CategoryId}", categoryId);
+            return false;
+        }
+
 
         string folderName = "Images/CategoryImage";
         var extension = Path.GetExtension(image.FileName).ToLowerInvariant();

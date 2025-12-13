@@ -48,6 +48,7 @@ builder.Services.AddSingleton<PaypalOptions>(paypalOptions);
 builder.Services.AddSingleton<PaypalUrls>(paypalUrls);
 builder.Services.AddSingleton<StoreUrls>(storeUrls);
 builder.Services.AddSingleton<InventoryOptions>(inventoryOptions);
+builder.Services.AddSingleton<CacheKeys>(cacheKeys);
 builder.Services.AddSingleton<ProductTrie>(productTrie);
 
 
@@ -67,6 +68,7 @@ builder.Services.AddAuthentication()
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOption.SigningKey))
         };
     });
+
 
 
 
@@ -147,11 +149,16 @@ app.UseHttpsRedirection();
 
 //app.UseAntiforgery();
 
+
 app.UseMiddleware<ContentSecurityPolicyMiddleware>();
 app.UseCors("MorfaCors");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+app.UseMiddleware<ExceptionLoggingMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.MapControllers();
 

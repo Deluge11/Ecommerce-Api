@@ -1,5 +1,7 @@
 ﻿using Business_Layer.Interfaces;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Models;
 using Options;
 using System;
 using System.Collections.Generic;
@@ -12,17 +14,20 @@ namespace Business_Layer.Business
 {
     public class InventoryKeyGenerator : IInventoryKeyGenerator
     {
-        public InventoryKeyGenerator(InventoryOptions inventoryOptions)
+        public InventoryKeyGenerator(InventoryOptions inventoryOptions, ILogger<InventoryKeyGenerator> logger)
         {
             InventoryOptions = inventoryOptions;
+            Logger = logger;
         }
 
         public InventoryOptions InventoryOptions { get; }
+        public ILogger Logger { get; }
 
         public string GenerateJwt()
         {
             if(InventoryOptions == null)
             {
+                Logger.LogWarning("Inventory Options Equal Null");
                 return string.Empty;
             }
 

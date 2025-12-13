@@ -6,6 +6,7 @@ using System.Text;
 using Models;
 using Options;
 using System.Net.Http.Headers;
+using Microsoft.Extensions.Logging;
 
 namespace Business_Layer.Business;
 
@@ -14,6 +15,7 @@ public class CartItemBusiness : ICartItemBusiness
     public ICartItemData CartItemData { get; }
     public IUsersBusiness UsersBusiness { get; }
     public IInventoryKeyGenerator InventoryKeyGenerator { get; }
+    public ILogger<CartItemBusiness> Logger { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
 
@@ -21,6 +23,7 @@ public class CartItemBusiness : ICartItemBusiness
         ICartItemData cartItemData,
         IUsersBusiness usersBusiness,
         IInventoryKeyGenerator inventoryKeyGenerator,
+        ILogger<CartItemBusiness> logger,
         StoreUrls storeUrls,
         HttpClient httpClient
         )
@@ -28,6 +31,7 @@ public class CartItemBusiness : ICartItemBusiness
         CartItemData = cartItemData;
         UsersBusiness = usersBusiness;
         InventoryKeyGenerator = inventoryKeyGenerator;
+        Logger = logger;
         StoreUrls = storeUrls;
         HttpClient = httpClient;
     }
@@ -218,9 +222,15 @@ public class CartItemBusiness : ICartItemBusiness
 
             return await SyncCartItemsCount(modifiedItems);
         }
-        catch
+        catch (HttpRequestException ex)
         {
+            Logger.LogWarning(ex, "Failed to sync cart items with external service | UserId: {UserId}", userId);
             return false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error while syncing cart items | UserId: {UserId}", userId);
+            throw; 
         }
     }
 

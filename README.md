@@ -114,9 +114,11 @@ PayPal REST API
 
 Dependency Injection
 
-Clean Architecture
+3-Tier Architecture
 
 RESTful API Design
+
+Cache-in-memory
 
 Trie Data Structure (Search)
 

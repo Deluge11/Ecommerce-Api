@@ -1,4 +1,6 @@
-﻿namespace Presentation_Layer.Middlewares
+﻿using System.Security.Claims;
+
+namespace Presentation_Layer.Middlewares
 {
     public class ExceptionLoggingMiddleware
     {
@@ -19,7 +21,7 @@
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Unhandled exception | CorrelationId: {CorrelationId}",context.Items["CorrelationId"]);
+                Logger.LogError(ex, "Unhandled exception | CorrelationId: {CorrelationId}", context.Items["CorrelationId"]);
 
                 context.Response.StatusCode = 500;
                 await context.Response.WriteAsync("Internal Server Error");

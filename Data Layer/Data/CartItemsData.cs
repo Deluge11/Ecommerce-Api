@@ -44,12 +44,21 @@ public class CartItemsData : ICartItemData
             await sqlConnect.OpenAsync();
             return await sqlcommand.ExecuteNonQueryAsync() > 0;
         }
+        catch (SqlException ex) when (ex.Number == 50000)
+        {
+            Logger.LogWarning("Business error: {Message}", ex.Message);
+        }
+        catch(SqlException ex)
+        {
+            Logger.LogError(ex, "Unhandled SQL error");
+        }
         catch (Exception ex)
         {
-            Logger.LogError("Database dwon Error Massage:{ex}", ex);
-            return false;
+            Logger.LogError(ex, "Database down");
+            throw;
         }
 
+        return false;
     }
     public async Task<bool> UpdateCartItem(int cartItemId, int count, int userId)
     {

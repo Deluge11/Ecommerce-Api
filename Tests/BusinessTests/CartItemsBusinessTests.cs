@@ -21,7 +21,7 @@ namespace Tests.BusinessTests
         public class CartItemBusinessForTest : CartItemBusiness
         {
             public CartItemBusinessForTest()
-                : base(null, null, null, null, null)
+                : base(null, null, null, null, null, null)
             {
             }
 
@@ -43,7 +43,7 @@ namespace Tests.BusinessTests
             var business = new CartItemBusiness(
                 cartItemDataMock.Object,
                 usersBusinessMock.Object,
-                null, null, null
+                null, null, null, null
             );
 
             var result = await business.SyncCartItemsPromocode();
@@ -64,7 +64,7 @@ namespace Tests.BusinessTests
             var business = new CartItemBusiness(
                 cartItemDataMock.Object,
                 usersBusinessMock.Object,
-                null, null, null
+                null, null, null, null
             );
 
             var result = await business.SyncCartItemsPromocode();
@@ -82,7 +82,7 @@ namespace Tests.BusinessTests
             var business = new CartItemBusiness(
                 cartItemDataMock.Object,
                 usersBusinessMock.Object,
-                null, null, null
+                null, null, null, null
             );
 
             var result = await business.DeleteCartItem(0);
@@ -103,7 +103,7 @@ namespace Tests.BusinessTests
             var business = new CartItemBusiness(
                 cartItemDataMock.Object,
                 usersBusinessMock.Object,
-                null, null, null
+                null, null, null, null
             );
 
             var result = await business.DeleteCartItem(5);
@@ -124,7 +124,7 @@ namespace Tests.BusinessTests
             var business = new CartItemBusiness(
                 cartItemDataMock.Object,
                 usersBusinessMock.Object,
-                null, null, null
+                null, null, null, null
             );
 
             var result = await business.DeleteCartItem(5);
@@ -142,7 +142,7 @@ namespace Tests.BusinessTests
             var business = new CartItemBusiness(
                 cartItemDataMock.Object,
                 usersBusinessMock.Object,
-                null, null, null
+                null, null, null, null
             );
 
             var result = await business.InsertCartItem(0);
@@ -163,7 +163,7 @@ namespace Tests.BusinessTests
             var business = new CartItemBusiness(
                 cartItemDataMock.Object,
                 usersBusinessMock.Object,
-                null, null, null
+                null, null, null, null
             );
 
             var result = await business.InsertCartItem(5);
@@ -185,7 +185,7 @@ namespace Tests.BusinessTests
             var business = new CartItemBusiness(
                 cartItemDataMock.Object,
                 usersBusinessMock.Object,
-                null, null, null
+                null, null, null, null
             );
 
             var result = await business.InsertCartItem(5);
@@ -200,7 +200,11 @@ namespace Tests.BusinessTests
             var cartItemDataMock = new Mock<ICartItemData>();
             var usersBusinessMock = new Mock<IUsersBusiness>();
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+                cartItemDataMock.Object,
+                usersBusinessMock.Object,
+                null, null, null, null
+                );
 
             var result = await business.PlusOneCartItem(0);
 
@@ -217,7 +221,11 @@ namespace Tests.BusinessTests
 
             usersBusinessMock.Setup(u => u.GetUserId()).Returns(0);
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+                cartItemDataMock.Object,
+                usersBusinessMock.Object,
+                null, null, null, null
+                );
 
             var result = await business.PlusOneCartItem(5);
 
@@ -234,7 +242,11 @@ namespace Tests.BusinessTests
             usersBusinessMock.Setup(u => u.GetUserId()).Returns(10);
             cartItemDataMock.Setup(d => d.UpdateCartItem(5, 1, 10)).ReturnsAsync(true);
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+                cartItemDataMock.Object,
+                usersBusinessMock.Object,
+                null, null, null, null
+                );
 
             var result = await business.PlusOneCartItem(5);
 
@@ -248,7 +260,11 @@ namespace Tests.BusinessTests
             var cartItemDataMock = new Mock<ICartItemData>();
             var usersBusinessMock = new Mock<IUsersBusiness>();
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+                cartItemDataMock.Object,
+                usersBusinessMock.Object,
+                null, null, null, null
+                );
 
             var result = await business.MinusOneCartItem(0);
 
@@ -265,7 +281,11 @@ namespace Tests.BusinessTests
 
             usersBusinessMock.Setup(u => u.GetUserId()).Returns(0);
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+                cartItemDataMock.Object,
+                usersBusinessMock.Object,
+                null, null, null, null
+                );
 
             var result = await business.MinusOneCartItem(5);
 
@@ -282,7 +302,11 @@ namespace Tests.BusinessTests
             usersBusinessMock.Setup(u => u.GetUserId()).Returns(10);
             cartItemDataMock.Setup(d => d.UpdateCartItem(5, -1, 10)).ReturnsAsync(true);
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+                cartItemDataMock.Object,
+                usersBusinessMock.Object,
+                null, null, null, null
+                );
 
             var result = await business.MinusOneCartItem(5);
 
@@ -296,7 +320,11 @@ namespace Tests.BusinessTests
             var cartItemDataMock = new Mock<ICartItemData>();
             var usersBusinessMock = new Mock<IUsersBusiness>();
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+                cartItemDataMock.Object,
+                usersBusinessMock.Object,
+                null, null, null, null
+                );
 
             var result = await business.UsePromocode(5, null);
 
@@ -311,7 +339,11 @@ namespace Tests.BusinessTests
             var cartItemDataMock = new Mock<ICartItemData>();
             var usersBusinessMock = new Mock<IUsersBusiness>();
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+              cartItemDataMock.Object,
+              usersBusinessMock.Object,
+              null, null, null, null
+              );
 
             var result = await business.UsePromocode(5, "     ");
 
@@ -326,7 +358,11 @@ namespace Tests.BusinessTests
             var cartItemDataMock = new Mock<ICartItemData>();
             var usersBusinessMock = new Mock<IUsersBusiness>();
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+              cartItemDataMock.Object,
+              usersBusinessMock.Object,
+              null, null, null, null
+              );
 
             var result = await business.UsePromocode(0, "XXPromocodeXX");
 
@@ -343,7 +379,11 @@ namespace Tests.BusinessTests
 
             usersBusinessMock.Setup(u => u.GetUserId()).Returns(0);
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+              cartItemDataMock.Object,
+              usersBusinessMock.Object,
+              null, null, null, null
+              );
 
             var result = await business.UsePromocode(5, "XXPromocodeXX");
 
@@ -363,8 +403,11 @@ namespace Tests.BusinessTests
             usersBusinessMock.Setup(u => u.GetUserId()).Returns(10);
             cartItemDataMock.Setup(d => d.UsePromocode(5, promocode, 10)).ReturnsAsync(true);
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
-
+            var business = new CartItemBusiness(
+               cartItemDataMock.Object,
+               usersBusinessMock.Object,
+               null, null, null, null
+               );
 
             var result = await business.UsePromocode(5, promocode);
 
@@ -381,7 +424,11 @@ namespace Tests.BusinessTests
 
             usersBusinessMock.Setup(u => u.GetUserId()).Returns(0);
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+              cartItemDataMock.Object,
+              usersBusinessMock.Object,
+              null, null, null, null
+              );
 
             var result = await business.GetCartItemQuantities();
 
@@ -406,7 +453,11 @@ namespace Tests.BusinessTests
             usersBusinessMock.Setup(u => u.GetUserId()).Returns(userId);
             cartItemDataMock.Setup(d => d.GetCartItemQuantities(userId)).ReturnsAsync(expectedList);
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+              cartItemDataMock.Object,
+              usersBusinessMock.Object,
+              null, null, null, null
+              );
 
             var result = await business.GetCartItemQuantities();
 
@@ -422,7 +473,11 @@ namespace Tests.BusinessTests
             var cartItemDataMock = new Mock<ICartItemData>();
             var usersBusinessMock = new Mock<IUsersBusiness>();
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+             cartItemDataMock.Object,
+             usersBusinessMock.Object,
+             null, null, null, null
+             );
 
             var result = await business.SyncCartItemsCount(new List<NewOrderRequest>());
 
@@ -437,7 +492,11 @@ namespace Tests.BusinessTests
             var cartItemDataMock = new Mock<ICartItemData>();
             var usersBusinessMock = new Mock<IUsersBusiness>();
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+              cartItemDataMock.Object,
+              usersBusinessMock.Object,
+              null, null, null, null
+              );
 
             var result = await business.SyncCartItemsCount(null);
 
@@ -459,7 +518,11 @@ namespace Tests.BusinessTests
                 new NewOrderRequest { StockId = 1, Quantity = 2 }
             };
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+              cartItemDataMock.Object,
+              usersBusinessMock.Object,
+              null, null, null, null
+              );
 
             var result = await business.SyncCartItemsCount(items);
 
@@ -484,7 +547,11 @@ namespace Tests.BusinessTests
             usersBusinessMock.Setup(u => u.GetUserId()).Returns(userId);
             cartItemDataMock.Setup(d => d.SyncCartItemsCount(It.IsAny<DataTable>(), userId)).ReturnsAsync(true);
 
-            var business = new CartItemBusiness(cartItemDataMock.Object, usersBusinessMock.Object, null, null, null);
+            var business = new CartItemBusiness(
+             cartItemDataMock.Object,
+             usersBusinessMock.Object,
+             null, null, null, null
+             );
 
             var result = await business.SyncCartItemsCount(items);
 
@@ -576,6 +643,7 @@ namespace Tests.BusinessTests
                 cartDataMock.Object,
                 usersMock.Object,
                 keyGenMock.Object,
+                null,
                 storeUrls,
                 httpClient
             );
@@ -625,6 +693,7 @@ namespace Tests.BusinessTests
                 cartDataMock.Object,
                 usersMock.Object,
                 keyGenMock.Object,
+                null,
                 storeUrls,
                 httpClient
             );
@@ -677,6 +746,7 @@ namespace Tests.BusinessTests
                 cartDataMock.Object,
                 usersMock.Object,
                 keyGenMock.Object,
+                null,
                 storeUrls,
                 httpClient
             );
@@ -729,6 +799,7 @@ namespace Tests.BusinessTests
                 cartDataMock.Object,
                 usersMock.Object,
                 keyGenMock.Object,
+                null,
                 storeUrls,
                 httpClient
             );
@@ -784,6 +855,7 @@ namespace Tests.BusinessTests
                 cartDataMock.Object,
                 usersMock.Object,
                 keyGenMock.Object,
+                null,
                 storeUrls,
                 httpClient
             );
@@ -838,6 +910,7 @@ namespace Tests.BusinessTests
                 cartDataMock.Object,
                 usersMock.Object,
                 keyGenMock.Object,
+                null,
                 storeUrls,
                 httpClient
             );

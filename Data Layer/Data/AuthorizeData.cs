@@ -1,19 +1,21 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
 using Data_Layer.Interfaces;
+using Microsoft.Extensions.Logging;
 namespace Data_Layer.Data;
 
 public class AuthorizeData : IAuthorizeData
 {
     public string ConnectionString { get; }
+    public ILogger<AuthorizeData> Logger { get; }
 
-
-    public AuthorizeData
-        (
-        string connectionString
+    public AuthorizeData (
+        string connectionString,
+        ILogger<AuthorizeData> logger
         )
     {
         ConnectionString = connectionString;
+        Logger = logger;
     }
 
 
@@ -29,7 +31,6 @@ public class AuthorizeData : IAuthorizeData
 
         try
         {
-
             await sqlConnection.OpenAsync();
             using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync();
             while (await reader.ReadAsync())
@@ -37,11 +38,11 @@ public class AuthorizeData : IAuthorizeData
                 permissions.Add(reader.GetInt32(reader.GetOrdinal("id")));
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
+            Logger.LogError(ex, "Error fetching permissions");
+            return new List<int>();
         }
-
         return permissions;
     }
 }

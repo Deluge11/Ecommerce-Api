@@ -1,27 +1,24 @@
 
-using Data_Layer.Interfaces;
-using Data_Layer.Data;
-using Business_Layer.Interfaces;
 using Business_Layer.Business;
-using Presentation_Layer.Filters;
-using Presentation_Layer.Middlewares;
-using Options;
-
-
+using Business_Layer.Interfaces;
+using Business_Layer.SearchTries;
+using Business_Layer.Timer;
+using Data_Layer.Data;
+using Data_Layer.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Options;
 using Presentation_Layer.Authentication;
 using Presentation_Layer.Authorization;
-using Business_Layer.Timer;
-using Business_Layer.SearchTries;
+using Presentation_Layer.Middlewares;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers(options =>
 {
-    options.Filters.Add<PermissionBaseAuthorizationFilter>();
+
 });
 
 //builder.Services.AddAntiforgery(options =>
@@ -144,9 +141,9 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Images/CategoryImage")),
     RequestPath = "/Images/CategoryImage"
 });
-app.UseHttpsRedirection();
 
 
+//app.UseHttpsRedirection();  Http for nginx only
 //app.UseAntiforgery();
 
 

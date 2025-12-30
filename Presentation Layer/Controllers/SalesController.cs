@@ -1,4 +1,4 @@
-﻿using Presentation_Layer. Authorization;
+﻿using Presentation_Layer.Authorization;
 using Enums;
 using Business_Layer.Interfaces;
 using Models;
@@ -26,9 +26,9 @@ public class SalesController : ControllerBase
 
     [CheckPermission(Permission.Sales_ViewOwnSales)]
     [HttpGet("my-sales")]
-    public async Task<IActionResult> GetMySales(SalesRequest salesRequest)
+    public async Task<IActionResult> GetMySales([FromQuery] SalesState state, [FromQuery] int lastIdSeen)
     {
-        var sales = await SalesBusiness.GetMySales(salesRequest.state, salesRequest.lastIdSeen);
+        var sales = await SalesBusiness.GetMySales(state, lastIdSeen);
         return sales != null ?
             Ok(sales) : NotFound();
     }
@@ -37,9 +37,9 @@ public class SalesController : ControllerBase
 
     [CheckPermission(Permission.Sales_ViewAllSales)]
     [HttpGet]
-    public async Task<IActionResult> GetAllSales(SalesRequest salesRequest)
+    public async Task<IActionResult> GetAllSales([FromQuery] SalesState state, [FromQuery] int lastIdSeen)
     {
-        var sales = await SalesBusiness.GetAllSales(salesRequest.state, salesRequest.lastIdSeen);
+        var sales = await SalesBusiness.GetAllSales(state, lastIdSeen);
         return sales != null ?
             Ok(sales) : NotFound();
     }
@@ -69,8 +69,8 @@ public class SalesController : ControllerBase
 
 
     [CheckPermission(Permission.Sales_ViewAllSales)]
-    [HttpGet("MerchantAccounting/{state}")]
-    public async Task<IActionResult> GetMerchantAccountingDetails(MerchantAccountingState state, [FromQuery] int lastIdSeen = 0)
+    [HttpGet("MerchantAccounting")]
+    public async Task<IActionResult> GetMerchantAccountingDetails([FromQuery] MerchantAccountingState state, [FromQuery] int lastIdSeen)
     {
         var result = await SalesBusiness.GetMerchantAccounting(state, lastIdSeen);
         return result != null ?

@@ -38,12 +38,7 @@ public class CategoriesController : ControllerBase
     {
         var category = await CategoryBusiness.GetById(id);
 
-        if (category == null)
-        {
-            return StatusCode(500);
-        }
-
-        return category.id != 0 ?
+        return category != null ?
          Ok(category) : NotFound();
     }
 

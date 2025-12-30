@@ -47,7 +47,7 @@ public class CategoryBusiness : ICategoryBusiness
             return false;
         }
 
-        Cache.Remove(CacheKeys.CategoryKey);
+        Cache.Remove(CacheKeys.CategoriesCacheKey);
         return await CategoryData.Add(name);
     }
 
@@ -87,7 +87,7 @@ public class CategoryBusiness : ICategoryBusiness
         var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
         var filePath = Path.Combine(folderName, Guid.NewGuid().ToString() + extension);
 
-        Cache.Remove(CacheKeys.CategoryKey);
+        Cache.Remove(CacheKeys.CategoriesCacheKey);
         await ImagesBusiness.StreamImage(filePath, image);
         await CategoryData.SetCategoryImage(filePath, categoryId);
         return true;
@@ -107,7 +107,7 @@ public class CategoryBusiness : ICategoryBusiness
             return null;
         }
 
-        return categories[id];
+        return categories.FirstOrDefault(c => c.id == id);
     }
 
     public async Task<bool> Update(int categoyId, string categoryName)
@@ -119,21 +119,19 @@ public class CategoryBusiness : ICategoryBusiness
             return false;
         }
 
-        Cache.Remove(CacheKeys.CategoryKey);
+        Cache.Remove(CacheKeys.CategoriesCacheKey);
         return await CategoryData.Update(categoyId, categoryName);
     }
 
     private async Task<List<Category>> GetCategoriesList()
     {
-        var categories = Cache.Get<List<Category>>(CacheKeys.CategoryKey);
-
-        if (categories == null)
+        if (!Cache.TryGetValue(CacheKeys.CategoriesCacheKey, out List<Category> categories))
         {
             categories = await CategoryData.GetAll() ?? new List<Category>();
 
             var cacheOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(1));
 
-            Cache.Set(CacheKeys.CategoryKey, categories, cacheOptions);
+            Cache.Set(CacheKeys.CategoriesCacheKey, categories, cacheOptions);
         }
 
         return categories;

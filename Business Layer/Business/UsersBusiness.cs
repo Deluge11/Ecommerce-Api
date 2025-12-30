@@ -46,6 +46,11 @@ public class UsersBusiness : IUsersBusiness
     {
         var user = await UsersData.GetUserByEmail(request.email);
 
+        if (user == null)
+        {
+            return null;
+        }
+
         if (!IsSamePassword(request.password, user.password))
         {
             return null;

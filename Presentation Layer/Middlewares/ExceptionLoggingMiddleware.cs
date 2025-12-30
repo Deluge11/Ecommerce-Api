@@ -24,7 +24,7 @@ namespace Presentation_Layer.Middlewares
                 Logger.LogError(ex, "Unhandled exception | CorrelationId: {CorrelationId}", context.Items["CorrelationId"]);
 
                 context.Response.StatusCode = 500;
-                await context.Response.WriteAsync("Internal Server Error");
+                await context.Response.WriteAsync($"Internal Server Error : {ex}");
             }
         }
     }

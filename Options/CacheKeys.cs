@@ -8,6 +8,6 @@ namespace Options
 {
     public class CacheKeys
     {
-        public string CategoryKey { get; set; }
+        public string CategoriesCacheKey { get; set; }
     }
 }

@@ -23,9 +23,9 @@ public class ProductsController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<ActionResult<List<ProductCatalog>>> GetProductsPage(ProductPageCatalogInfo request)
+    public async Task<ActionResult<List<ProductCatalog>>> GetProductsPage([FromQuery] int categoryId, [FromQuery]int take, [FromQuery] int lastSeenId)
     {
-        var products = await ProductsBusiness.GetProductsCatalog(request);
+        var products = await ProductsBusiness.GetProductsCatalog(categoryId,take,lastSeenId);
         return products != null ?
             Ok(products) : BadRequest();
     }

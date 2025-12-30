@@ -7,7 +7,7 @@ namespace Data_Layer.Interfaces;
 public interface IProductsData
 {
     //Task<List<ProductCatalog>> GetProductsCatalog(ProductPageInfo request);
-    Task<List<ProductCatalog>> GetProductsCatalog(ProductPageCatalogInfo request);
+    Task<List<ProductCatalog>> GetProductsCatalog(int categoryId, int take, int lastSeenId);
     Task<ProductDetails> GetProductById(int productId);
     Task<List<ProductCatalog>> GetProductByUserId(int userId);
     Task<List<ProductCatalog>> GetMyProducts(int userId);

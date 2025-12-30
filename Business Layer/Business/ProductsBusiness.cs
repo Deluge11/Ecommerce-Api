@@ -108,17 +108,17 @@ public class ProductsBusinees : IProductsBusiness
         return await ProductsData.GetProductImages(productId);
     }
 
-    public async Task<List<ProductCatalog>> GetProductsCatalog(ProductPageCatalogInfo request)
+    public async Task<List<ProductCatalog>> GetProductsCatalog(int categoryId, int take, int lastSeenId)
     {
-        if (request.Take < 1 || request.Take > 12)
+        if (take < 1 || take > 12)
         {
             return null;
         }
-        if (request.CategoryId < 1)
+        if (categoryId < 1)
         {
             return null;
         }
-        return await ProductsData.GetProductsCatalog(request);
+        return await ProductsData.GetProductsCatalog(categoryId, take, lastSeenId);
     }
 
     protected string InsertedProductErrorMessage(InsertProductRequest product)

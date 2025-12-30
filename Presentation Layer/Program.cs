@@ -38,7 +38,6 @@ var cacheKeys = builder.Configuration.GetSection("CacheKeys").Get<CacheKeys>();
 var productTrie = new ProductTrie();
 
 
-
 builder.Services.AddSingleton<string>(connectionString);
 builder.Services.AddSingleton<JwtOptions>(jwtOption);
 builder.Services.AddSingleton<PaypalOptions>(paypalOptions);
@@ -116,7 +115,7 @@ builder.Services.AddSingleton<TimerService>(provider =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MorfaCors", policy =>
-        policy.WithOrigins("https://morfa-shop.vercel.app")
+        policy.AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod()
     );
@@ -143,7 +142,7 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 
-//app.UseHttpsRedirection();  Http for nginx only
+app.UseHttpsRedirection();
 //app.UseAntiforgery();
 
 

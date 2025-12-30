@@ -22,7 +22,7 @@ public class ProductData : IProductsData
         CategoryRepo = categoryRepo;
     }
 
-    public async Task<List<ProductCatalog>> GetProductsCatalog(ProductPageCatalogInfo request)
+    public async Task<List<ProductCatalog>> GetProductsCatalog(int categoryId, int take, int lastSeenId)
     {
         List<ProductCatalog> products = new();
 
@@ -30,9 +30,9 @@ public class ProductData : IProductsData
         using SqlCommand command = new SqlCommand("dbo.GetProductCatalog", connection);
 
         command.CommandType = CommandType.StoredProcedure;
-        command.Parameters.Add(new SqlParameter("@CategoryId", SqlDbType.Int) { Value = request.CategoryId });
-        command.Parameters.Add(new SqlParameter("@Take", SqlDbType.Int) { Value = request.Take });
-        command.Parameters.Add(new SqlParameter("@LastIdSeen", SqlDbType.Int) { Value = request.LastSeenId });
+        command.Parameters.Add(new SqlParameter("@CategoryId", SqlDbType.Int) { Value = categoryId });
+        command.Parameters.Add(new SqlParameter("@Take", SqlDbType.Int) { Value = take });
+        command.Parameters.Add(new SqlParameter("@LastIdSeen", SqlDbType.Int) { Value = lastSeenId });
 
         try
         {

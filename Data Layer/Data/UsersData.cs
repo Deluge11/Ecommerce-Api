@@ -39,6 +39,7 @@ public class UsersData : IUsersData
         }
         catch (Exception)
         {
+            throw;
             return null;
         }
     }

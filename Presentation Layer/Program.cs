@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Options;
 using Presentation_Layer.Authentication;
 using Presentation_Layer.Authorization;
+using Presentation_Layer.Filters;
 using Presentation_Layer.Middlewares;
 using System.Text;
 
@@ -18,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers(options =>
 {
-
+    options.Filters.Add<PermissionBaseAuthorizationFilter>();
 });
 
 //builder.Services.AddAntiforgery(options =>
@@ -142,7 +143,7 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 //app.UseAntiforgery();
 
 

@@ -61,6 +61,42 @@ public class ProductData : IProductsData
     }
 
 
+    public async Task<List<ProductCatalog>> GetProductsCatalogForAllCategories(int take, int lastSeenId)
+    {
+        List<ProductCatalog> products = new();
+
+        using SqlConnection connection = new SqlConnection(ConnectionString);
+        using SqlCommand command = new SqlCommand("dbo.GetProductsCatalogForAllCategories", connection);
+
+        command.CommandType = CommandType.StoredProcedure;
+        command.Parameters.Add(new SqlParameter("@Take", SqlDbType.Int) { Value = take });
+        command.Parameters.Add(new SqlParameter("@LastIdSeen", SqlDbType.Int) { Value = lastSeenId });
+
+        try
+        {
+            await connection.OpenAsync();
+            using SqlDataReader reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                products.Add(new ProductCatalog
+                {
+                    id = reader.GetInt32(reader.GetOrdinal("id")),
+                    name = reader.GetString(reader.GetOrdinal("name")),
+                    price = reader.GetDecimal(reader.GetOrdinal("price")),
+                    image = reader.IsDBNull(reader.GetOrdinal("path")) ?
+                     null : reader.GetString(reader.GetOrdinal("path"))
+
+                });
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+
+
+        return products;
+    }
     public async Task<ProductDetails> GetProductById(int productId)
     {
 

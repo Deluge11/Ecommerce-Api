@@ -8,6 +8,7 @@ public interface IProductsData
 {
     //Task<List<ProductCatalog>> GetProductsCatalog(ProductPageInfo request);
     Task<List<ProductCatalog>> GetProductsCatalog(int categoryId, int take, int lastSeenId);
+    Task<List<ProductCatalog>> GetProductsCatalogForAllCategories(int take, int lastSeenId);
     Task<ProductDetails> GetProductById(int productId);
     Task<List<ProductCatalog>> GetProductByUserId(int userId);
     Task<List<ProductCatalog>> GetMyProducts(int userId);
@@ -17,7 +18,7 @@ public interface IProductsData
     Task<bool> UpdateProductState(int productId, int userId, int state);
     Task<List<ProductImage>> GetProductImages(int productId);
     Task<bool> SetProductMainImage(int productId, int userId, int imageId);
-    Task<bool> IsMyProduct(int productId , int userId);
+    Task<bool> IsMyProduct(int productId, int userId);
     Task<int> SaveImagePath(string filePath, int productId);
     Task<List<string>> GetProductNames();
 }

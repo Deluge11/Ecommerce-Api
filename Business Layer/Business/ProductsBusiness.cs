@@ -121,6 +121,15 @@ public class ProductsBusinees : IProductsBusiness
         return await ProductsData.GetProductsCatalog(categoryId, take, lastSeenId);
     }
 
+    public async Task<List<ProductCatalog>> GetProductsCatalogForAllCategories(int take, int lastSeenId)
+    {
+        if (take < 1 || take > 12)
+        {
+            return null;
+        }
+        return await ProductsData.GetProductsCatalogForAllCategories(take, lastSeenId);
+    }
+
     protected string InsertedProductErrorMessage(InsertProductRequest product)
     {
         int userId = UsersBusiness.GetUserId();

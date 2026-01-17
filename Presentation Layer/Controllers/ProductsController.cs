@@ -20,17 +20,53 @@ public class ProductsController : ControllerBase
     }
 
 
-
+    
     [AllowAnonymous]
     [HttpGet]
-    public async Task<ActionResult<List<ProductCatalog>>> GetProductsPage([FromQuery] int categoryId, [FromQuery]int take, [FromQuery] int lastSeenId)
+    public async Task<IActionResult> GetProductsPage([FromQuery] int categoryId, [FromQuery]int take, [FromQuery] int lastSeenId)
     {
         var products = await ProductsBusiness.GetProductsCatalog(categoryId,take,lastSeenId);
-        return products != null ?
-            Ok(products) : BadRequest();
+        if (products == null)
+        {
+            return BadRequest();
+        }
+
+        if (products.Count == 0)
+        {
+            return NoContent();
+        }
+
+        var result = new
+        {
+            Products = products,
+            LastSeenId = products[products.Count - 1].id
+        };
+        return Ok(result);
     }
 
+    [AllowAnonymous]
+    [HttpGet("get-all-sections")]
+    public async Task<IActionResult> GetProductsCatalogForAllCategories([FromQuery] int take, [FromQuery] int lastSeenId)
+    {
+        var products = await ProductsBusiness.GetProductsCatalogForAllCategories(take, lastSeenId);
 
+        if (products == null)
+        {
+            return BadRequest();
+        }
+
+        if (products.Count == 0)
+        {
+            return NoContent();
+        }
+
+        var result = new
+        {
+            Products = products,
+            LastSeenId = products[products.Count - 1].id
+        };
+        return Ok(result);
+    }
 
     [AllowAnonymous]
     [HttpGet("{productId}")]
@@ -81,7 +117,7 @@ public class ProductsController : ControllerBase
     [Authorize]
     [CheckPermission(Permission.Products_ManageOwnProduct)]
     [HttpPost]
-    public async Task<ActionResult<int>> InsertProduct(InsertProductRequest product)
+    public async Task<IActionResult> InsertProduct(InsertProductRequest product)
     {
 
         var result = await ProductsBusiness.InsertProduct(product);
@@ -105,7 +141,7 @@ public class ProductsController : ControllerBase
     [Authorize]
     [CheckPermission(Permission.Products_ManageOwnProduct)]
     [HttpPost("{productId}")]
-    public async Task<ActionResult> UploadImage(List<IFormFile> images, int productId)
+    public async Task<IActionResult> UploadImage(List<IFormFile> images, int productId)
     {
         var result = await ProductsBusiness.UploadImage(images, productId);
         return result.Success ?
@@ -117,7 +153,7 @@ public class ProductsController : ControllerBase
     [Authorize]
     [CheckPermission(Permission.Products_ManageOwnProduct)]
     [HttpPut]
-    public async Task<ActionResult> UpdateProduct(UpdateProductRequest product)
+    public async Task<IActionResult> UpdateProduct(UpdateProductRequest product)
     {
         return await ProductsBusiness.UpdateProduct(product) ?
             Ok() : BadRequest("Cant access this product");
@@ -129,7 +165,7 @@ public class ProductsController : ControllerBase
     [Authorize]
     [CheckPermission(Permission.Products_ManageOwnProduct)]
     [HttpPatch("image/{productId}")]
-    public async Task<ActionResult> SetMainImage(int productId, [FromQuery] int imageId)
+    public async Task<IActionResult> SetMainImage(int productId, [FromQuery] int imageId)
     {
         return await ProductsBusiness.SetProductMainImage(productId, imageId) ?
             Ok() : BadRequest();
@@ -140,7 +176,7 @@ public class ProductsController : ControllerBase
     [Authorize]
     [CheckPermission(Permission.Products_ChangeProductState)]
     [HttpPatch("{productId}")]
-    public async Task<ActionResult> UpdateProductState(int productId, ProductState state)
+    public async Task<IActionResult> UpdateProductState(int productId, ProductState state)
     {
         return await ProductsBusiness.UpdateProductState(productId, state) ?
             Ok() : BadRequest();

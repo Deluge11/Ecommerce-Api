@@ -7,6 +7,7 @@ namespace Business_Layer.Interfaces;
 public interface IProductsBusiness
 {
     Task<List<ProductCatalog>> GetProductsCatalog(int categoryId, int take, int lastSeenId);
+    Task<List<ProductCatalog>> GetProductsCatalogForAllCategories(int take, int lastSeenId);
     Task<ProductDetails> GetProductById(int productId);
     Task<List<ProductCatalog>> GetProductByUserId(int userId);
     Task<List<ProductCatalog>> GetMyProducts();

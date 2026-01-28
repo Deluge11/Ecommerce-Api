@@ -1,9 +1,9 @@
 ﻿using Presentation_Layer.Authorization;
-using Business_Layer.Interfaces;
 using Enums;
 using Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Business_Layer.Business;
 
 namespace Presentation_Layer.Controllers;
 
@@ -14,9 +14,9 @@ namespace Presentation_Layer.Controllers;
 public class PromocodeController : ControllerBase
 {
 
-    public IPromoCodeBusiness PromoCodeBusiness { get; }
+    public PromoCodeBusiness PromoCodeBusiness { get; }
 
-    public PromocodeController(IPromoCodeBusiness promoCodeBusiness)
+    public PromocodeController(PromoCodeBusiness promoCodeBusiness)
     {
         PromoCodeBusiness = promoCodeBusiness;
     }

@@ -1,31 +1,24 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Collections.Generic;
-using Data_Layer.Interfaces;
 using Models;
 using Microsoft.Extensions.Logging;
 
 namespace Data_Layer.Data;
 
-public class CartItemsData : ICartItemData
+public class CartItemsData
 {
     public string ConnectionString { get; }
-    public IProductsData ProductsRepo { get; }
-    public ICartsData CartsRepo { get; }
-    public IUsersData UsersRepo { get; }
     public ILogger<CartItemsData> Logger { get; }
 
     public CartItemsData
         (
         string connectionString,
-        IProductsData productsRepo,
-        ICartsData cartsRepo,
+        ProductData productsRepo,
         ILogger<CartItemsData> logger
         )
     {
         ConnectionString = connectionString;
-        ProductsRepo = productsRepo;
-        CartsRepo = cartsRepo;
         Logger = logger;
     }
 
@@ -48,7 +41,7 @@ public class CartItemsData : ICartItemData
         {
             Logger.LogWarning("Business error: {Message}", ex.Message);
         }
-        catch(SqlException ex)
+        catch (SqlException ex)
         {
             Logger.LogError(ex, "Unhandled SQL error");
         }

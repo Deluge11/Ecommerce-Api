@@ -1,15 +1,15 @@
 ﻿
-using Business_Layer.Interfaces;
-using Data_Layer.Interfaces;
+
+using Data_Layer.Data;
 using Models;
 namespace Business_Layer.Business;
 
-public class CartsBusiness : ICartsBusiness
+public class CartsBusiness
 {
-    public ICartsData CartsData { get; }
-    public IUsersBusiness UsersBusiness { get; }
+    public CartsData CartsData { get; }
+    public UsersBusiness UsersBusiness { get; }
 
-    public CartsBusiness(ICartsData cartsData, IUsersBusiness usersBusiness)
+    public CartsBusiness(CartsData cartsData, UsersBusiness usersBusiness)
     {
         CartsData = cartsData;
         UsersBusiness = usersBusiness;

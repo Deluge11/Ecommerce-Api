@@ -1,14 +1,12 @@
-﻿using Business_Layer.Interfaces;
-using Data_Layer.Data;
-using Data_Layer.Interfaces;
+﻿using Data_Layer.Data;
 
 namespace Business_Layer.Business
 {
-    public class AuthorizeBusiness : IAuthorizeBusiness
+    public class AuthorizeBusiness
     {
-        public IAuthorizeData AuthorizeData { get; }
+        public AuthorizeData AuthorizeData { get; }
 
-        public AuthorizeBusiness(IAuthorizeData authorizeData)
+        public AuthorizeBusiness(AuthorizeData authorizeData)
         {
             AuthorizeData = authorizeData;
         }

@@ -1,8 +1,6 @@
 ﻿
 using System.Text;
 using System.Text.Json;
-using Business_Layer.Interfaces;
-using Data_Layer.Interfaces;
 using Options;
 using Models;
 using Data_Layer.Data;
@@ -12,13 +10,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Business_Layer.Business;
 
-public class OrdersBusiness : IOrdersBusiness
+public class OrdersBusiness
 {
     public OrdersBusiness(
-        IOrdersData ordersData,
-        IUsersBusiness usersBusiness,
-        ICartItemBusiness cartItemBusiness,
-        IInventoryKeyGenerator inventoryKeyGenerator,
+        OrderData ordersData,
+        UsersBusiness usersBusiness,
+        CartItemBusiness cartItemBusiness,
+        InventoryKeyGenerator inventoryKeyGenerator,
         ILogger<OrdersBusiness> logger,
         StoreUrls storeUrls,
         HttpClient httpClient
@@ -33,10 +31,10 @@ public class OrdersBusiness : IOrdersBusiness
         HttpClient = httpClient;
     }
 
-    public IOrdersData OrdersData { get; }
-    public IUsersBusiness UsersBusiness { get; }
-    public ICartItemBusiness CartItemBusiness { get; }
-    public IInventoryKeyGenerator InventoryKeyGenerator { get; }
+    public OrderData OrdersData { get; }
+    public UsersBusiness UsersBusiness { get; }
+    public CartItemBusiness CartItemBusiness { get; }
+    public InventoryKeyGenerator InventoryKeyGenerator { get; }
     public ILogger<OrdersBusiness> Logger { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }

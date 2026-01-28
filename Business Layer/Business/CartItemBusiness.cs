@@ -1,28 +1,27 @@
-﻿using Data_Layer.Interfaces;
-using Business_Layer.Interfaces;
-using System.Data;
+﻿using System.Data;
 using System.Text.Json;
 using System.Text;
 using Models;
 using Options;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
+using Data_Layer.Data;
 
 namespace Business_Layer.Business;
 
-public class CartItemBusiness : ICartItemBusiness
+public class CartItemBusiness
 {
-    public ICartItemData CartItemData { get; }
-    public IUsersBusiness UsersBusiness { get; }
-    public IInventoryKeyGenerator InventoryKeyGenerator { get; }
+    public CartItemsData CartItemData { get; }
+    public UsersBusiness UsersBusiness { get; }
+    public InventoryKeyGenerator InventoryKeyGenerator { get; }
     public ILogger<CartItemBusiness> Logger { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
 
     public CartItemBusiness(
-        ICartItemData cartItemData,
-        IUsersBusiness usersBusiness,
-        IInventoryKeyGenerator inventoryKeyGenerator,
+        CartItemsData cartItemData,
+        UsersBusiness usersBusiness,
+        InventoryKeyGenerator inventoryKeyGenerator,
         ILogger<CartItemBusiness> logger,
         StoreUrls storeUrls,
         HttpClient httpClient

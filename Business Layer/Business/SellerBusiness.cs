@@ -1,5 +1,5 @@
-﻿using Business_Layer.Interfaces;
-using Data_Layer.Interfaces;
+﻿
+using Data_Layer.Data;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace Business_Layer.Business
 {
-    public class SellerBusiness : ISellerBusiness
+    public class SellerBusiness 
     {
 
-        public ISellerData SellerData { get; }
-        public IUsersBusiness UsersBusiness { get; }
+        public SellerData SellerData { get; }
+        public UsersBusiness UsersBusiness { get; }
 
-        public SellerBusiness(ISellerData sellerData, IUsersBusiness usersBusiness)
+        public SellerBusiness(SellerData sellerData, UsersBusiness usersBusiness)
         {
             SellerData = sellerData;
             UsersBusiness = usersBusiness;

@@ -1,8 +1,8 @@
-﻿using Business_Layer.Interfaces;
-using Models;
+﻿using Models;
 using Microsoft.AspNetCore.Authorization;
 using Presentation_Layer.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Business_Layer.Business;
 
 namespace Presentation_Layer.Controllers;
 
@@ -10,10 +10,10 @@ namespace Presentation_Layer.Controllers;
 [Route("[controller]")]
 public class UsersController : ControllerBase
 {
-    private IUsersBusiness UsersBusiness { get; }
+    private UsersBusiness UsersBusiness { get; }
     public AuthenticateHelper AuthenticateHelper { get; }
 
-    public UsersController(IUsersBusiness usersBusiness, AuthenticateHelper authenticateHelper)
+    public UsersController(UsersBusiness usersBusiness, AuthenticateHelper authenticateHelper)
     {
         UsersBusiness = usersBusiness;
         AuthenticateHelper = authenticateHelper;

@@ -1,7 +1,6 @@
 ﻿
 
-using Business_Layer.Interfaces;
-using Data_Layer.Interfaces;
+
 using Business_Layer.Sanitizations;
 using Enums;
 using Models;
@@ -12,28 +11,29 @@ using Options;
 using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
+using Data_Layer.Data;
 
 
 namespace Business_Layer.Business;
 
-public class ProductsBusinees : IProductsBusiness
+public class ProductsBusiness 
 {
-    public IProductsData ProductsData { get; }
-    public IImagesBusiness ImagesBusiness { get; }
-    public IUsersBusiness UsersBusiness { get; }
-    public IInventoryKeyGenerator InventoryKeyGenerator { get; }
-    public IFileSystem FileSystem { get; }
-    public ILogger<ProductsBusinees> Logger { get; }
+    public ProductData ProductsData { get; }
+    public ImagesBusiness ImagesBusiness { get; }
+    public UsersBusiness UsersBusiness { get; }
+    public InventoryKeyGenerator InventoryKeyGenerator { get; }
+    public FileSystem FileSystem { get; }
+    public ILogger<ProductsBusiness> Logger { get; }
     public StoreUrls StoreUrls { get; }
     public HttpClient HttpClient { get; }
 
-    public ProductsBusinees(
-        IProductsData productsData,
-        IImagesBusiness imagesBusiness,
-        IUsersBusiness usersBusiness,
-        IInventoryKeyGenerator inventoryKeyGenerator,
-        IFileSystem fileSystem,
-        ILogger<ProductsBusinees> logger,
+    public ProductsBusiness(
+        ProductData productsData,
+        ImagesBusiness imagesBusiness,
+        UsersBusiness usersBusiness,
+        InventoryKeyGenerator inventoryKeyGenerator,
+        FileSystem fileSystem,
+        ILogger<ProductsBusiness> logger,
         StoreUrls storeUrls,
         HttpClient httpClient
         )

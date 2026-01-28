@@ -1,25 +1,21 @@
 ﻿
 using Microsoft.Data.SqlClient;
 using System.Data;
-using Data_Layer.Interfaces;
 using Models;
 
 
 namespace Data_Layer.Data;
 
-public class ProductData : IProductsData
+public class ProductData 
 {
     public string ConnectionString { get; }
-    public ICategoryData CategoryRepo { get; }
 
     public ProductData
         (
-        string connectionString,
-        ICategoryData categoryRepo
+        string connectionString
         )
     {
         ConnectionString = connectionString;
-        CategoryRepo = categoryRepo;
     }
 
     public async Task<List<ProductCatalog>> GetProductsCatalog(int categoryId, int take, int lastSeenId)

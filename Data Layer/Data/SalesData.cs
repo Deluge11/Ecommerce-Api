@@ -4,12 +4,11 @@ using Microsoft.Extensions.Logging;
 
 using System.Data;
 
-using Data_Layer.Interfaces;
 using Models;
 
 namespace Data_Layer.Data;
 
-public class SalesData : ISalesData
+public class SalesData 
 {
     private string ConnectionString { get; }
 

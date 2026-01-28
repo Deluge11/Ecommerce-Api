@@ -1,12 +1,11 @@
 ﻿using System.Data;
 using Microsoft.Data.SqlClient;
-using Data_Layer.Interfaces;
 using Microsoft.Extensions.Logging;
 using Models;
 
 namespace Data_Layer.Data;
 
-public class CategoryData : ICategoryData
+public class CategoryData 
 {
     public string ConnectionString { get; }
     public ILogger<CategoryData> Logger { get; }

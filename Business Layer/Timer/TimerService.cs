@@ -1,4 +1,4 @@
-﻿using Business_Layer.Interfaces;
+﻿using Business_Layer.Business;
 using Business_Layer.SearchTries;
 using TimeCounter = System.Threading.Timer;
 
@@ -8,10 +8,10 @@ public class TimerService : IDisposable
 {
     private readonly TimeCounter refreshProductsTrie;
 
-    public IProductsBusiness ProductsBusiness { get; }
+    public ProductsBusiness ProductsBusiness { get; }
     public ProductTrie Trie { get; }
 
-    public TimerService(IProductsBusiness productsBusiness, ProductTrie trie)
+    public TimerService(ProductsBusiness productsBusiness, ProductTrie trie)
     {
         refreshProductsTrie = new TimeCounter(SetTrieWords, null, TimeSpan.Zero, TimeSpan.FromDays(1));
         ProductsBusiness = productsBusiness;

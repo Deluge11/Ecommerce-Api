@@ -11,34 +11,33 @@ using PayoutsSdk.Payouts;
 using System.Net.Http.Headers;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Data_Layer.Interfaces;
-using Business_Layer.Interfaces;
 using Models;
 using Microsoft.AspNetCore.Http;
+using Data_Layer.Data;
 
 namespace Business_Layer.Business;
 
-public class PayPalBusiness : IPayPalBusiness
+public class PayPalBusiness 
 {
     public PaypalOptions PaypalOptions { get; }
     public PaypalUrls PaypalUrls { get; }
-    public IPayPalData PayPalData { get; }
-    public IOrdersBusiness OrdersBusiness { get; }
+    public PayPalData PayPalData { get; }
+    public OrdersBusiness OrdersBusiness { get; }
     public ILogger<PayPalBusiness> Logger { get; }
-    public ISalesBusiness SalesBusiness { get; }
-    public ICartItemBusiness CartItemBusiness { get; }
-    public IUsersBusiness UsersBusiness { get; }
+    public SalesBusiness SalesBusiness { get; }
+    public CartItemBusiness CartItemBusiness { get; }
+    public UsersBusiness UsersBusiness { get; }
 
     public PayPalBusiness
         (
         PaypalOptions paypalOptions,
         PaypalUrls paypalUrls,
-        IPayPalData payPalData,
-        IOrdersBusiness ordersBusiness,
+        PayPalData payPalData,
+        OrdersBusiness ordersBusiness,
         ILogger<PayPalBusiness> logger,
-        ISalesBusiness salesBusiness,
-        ICartItemBusiness cartItemBusiness,
-        IUsersBusiness usersBusiness
+        SalesBusiness salesBusiness,
+        CartItemBusiness cartItemBusiness,
+        UsersBusiness usersBusiness
         )
     {
         PaypalOptions = paypalOptions;

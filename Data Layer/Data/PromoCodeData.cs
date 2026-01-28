@@ -3,13 +3,12 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 using Enums;
 
-using Data_Layer.Interfaces;
 using Models;
 
 
 namespace Data_Layer.Data;
 
-public class PromoCodeData : IPromoCodeData
+public class PromoCodeData 
 {
 
     public string ConnectionString { get; }

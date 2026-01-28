@@ -1,4 +1,4 @@
-﻿using Business_Layer.Interfaces;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Business_Layer.Business
 {
-    public class FileSystem : IFileSystem
+    public class FileSystem 
     {
         public int GetFilesCount(string path)
         {

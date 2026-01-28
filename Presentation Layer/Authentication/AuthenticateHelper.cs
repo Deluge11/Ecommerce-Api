@@ -3,20 +3,20 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Business_Layer.Interfaces;
 using Options;
 using Presentation_Layer.Authorization;
 using Models;
 using Business_Layer.Sanitizations;
+using Business_Layer.Business;
 
 namespace Presentation_Layer.Authentication;
 
 public class AuthenticateHelper
 {
     public JwtOptions JwtOptions { get; }
-    public IAuthorizeBusiness AuthorizeBusiness { get; }
+    public AuthorizeBusiness AuthorizeBusiness { get; }
 
-    public AuthenticateHelper(JwtOptions jwtOptions, IAuthorizeBusiness authorizeBusiness)
+    public AuthenticateHelper(JwtOptions jwtOptions, AuthorizeBusiness authorizeBusiness)
     {
         JwtOptions = jwtOptions;
         AuthorizeBusiness = authorizeBusiness;

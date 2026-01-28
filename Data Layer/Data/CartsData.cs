@@ -2,12 +2,11 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using System.Data;
-using Data_Layer.Interfaces;
 using Models;
 
 namespace Data_Layer.Data;
 
-public class CartsData : ICartsData
+public class CartsData
 {
     public string ConnectionString { get; }
     public ILogger<CartsData> Logger { get; }

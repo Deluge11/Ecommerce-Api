@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Models;
 using Microsoft.AspNetCore.Authorization;
-using Business_Layer.Interfaces;
 using Presentation_Layer.Authorization;
 using Enums;
+using Business_Layer.Business;
 
 namespace Presentation_Layer.Controllers;
 
@@ -12,9 +12,9 @@ namespace Presentation_Layer.Controllers;
 
 public class CategoriesController : ControllerBase
 {
-    public ICategoryBusiness CategoryBusiness { get; }
+    public CategoryBusiness CategoryBusiness { get; }
 
-    public CategoriesController(ICategoryBusiness categoryBusiness)
+    public CategoriesController(CategoryBusiness categoryBusiness)
     {
         CategoryBusiness = categoryBusiness;
     }

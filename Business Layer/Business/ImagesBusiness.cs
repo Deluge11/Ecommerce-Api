@@ -1,11 +1,10 @@
 ﻿
-using Business_Layer.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Business_Layer.Business;
 
-public class ImagesBusiness : IImagesBusiness
+public class ImagesBusiness 
 {
     public ILogger<ImagesBusiness> Logger { get; }
 

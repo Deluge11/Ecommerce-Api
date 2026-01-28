@@ -1,10 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
-using Data_Layer.Interfaces;
 using Microsoft.Extensions.Logging;
 namespace Data_Layer.Data;
 
-public class AuthorizeData : IAuthorizeData
+public class AuthorizeData 
 {
     public string ConnectionString { get; }
     public ILogger<AuthorizeData> Logger { get; }

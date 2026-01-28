@@ -1,5 +1,4 @@
-﻿using Business_Layer.Interfaces;
-using Data_Layer.Interfaces;
+﻿
 using Business_Layer.Sanitizations;
 using Microsoft.Extensions.Caching.Memory;
 using Models;
@@ -7,20 +6,21 @@ using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using Options;
 using Microsoft.Extensions.Logging;
+using Data_Layer.Data;
 
 namespace Business_Layer.Business;
 
-public class CategoryBusiness : ICategoryBusiness
+public class CategoryBusiness 
 {
-    public ICategoryData CategoryData { get; }
-    public IImagesBusiness ImagesBusiness { get; }
+    public CategoryData CategoryData { get; }
+    public ImagesBusiness ImagesBusiness { get; }
     public ILogger Logger { get; }
     public IMemoryCache Cache { get; }
     public CacheKeys CacheKeys { get; }
 
     public CategoryBusiness(
-        ICategoryData categoryData,
-        IImagesBusiness imagesBusiness,
+        CategoryData categoryData,
+        ImagesBusiness imagesBusiness,
         ILogger<CategoryBusiness> logger,
         IMemoryCache cache,
         CacheKeys cacheKeys

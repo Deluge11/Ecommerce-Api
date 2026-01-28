@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using Enums;
 using Presentation_Layer.Authorization;
-using Business_Layer.Interfaces;
+using Business_Layer.Business;
 
 
 
@@ -15,9 +15,9 @@ namespace Presentation_Layer.Controllers;
 public class PayPalController : ControllerBase
 {
     public ILogger<PayPalController> logger { get; }
-    public IPayPalBusiness PayPalBusiness { get; }
+    public PayPalBusiness PayPalBusiness { get; }
 
-    public PayPalController(ILogger<PayPalController> logger, IPayPalBusiness payPalBusiness)
+    public PayPalController(ILogger<PayPalController> logger, PayPalBusiness payPalBusiness)
     {
         this.logger = logger;
         PayPalBusiness = payPalBusiness;

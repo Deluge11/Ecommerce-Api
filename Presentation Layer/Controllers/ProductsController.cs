@@ -1,9 +1,9 @@
 ﻿using Presentation_Layer.Authorization;
 using Enums;
-using Business_Layer.Interfaces;
 using Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Business_Layer.Business;
 
 
 namespace Presentation_Layer.Controllers;
@@ -12,9 +12,9 @@ namespace Presentation_Layer.Controllers;
 [Route("[controller]")]
 public class ProductsController : ControllerBase
 {
-    public IProductsBusiness ProductsBusiness { get; }
+    public ProductsBusiness ProductsBusiness { get; }
 
-    public ProductsController(IProductsBusiness productsBusiness)
+    public ProductsController(ProductsBusiness productsBusiness)
     {
         ProductsBusiness = productsBusiness;
     }

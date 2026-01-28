@@ -1,10 +1,8 @@
 
 using Business_Layer.Business;
-using Business_Layer.Interfaces;
 using Business_Layer.SearchTries;
 using Business_Layer.Timer;
 using Data_Layer.Data;
-using Data_Layer.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -72,34 +70,34 @@ builder.Services.AddAuthentication()
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 
-builder.Services.AddScoped<IImagesBusiness, ImagesBusiness>();
-builder.Services.AddScoped<IUsersBusiness, UsersBusiness>();
-builder.Services.AddScoped<ICartItemBusiness, CartItemBusiness>();
-builder.Services.AddScoped<ICartsBusiness, CartsBusiness>();
-builder.Services.AddScoped<ICategoryBusiness, CategoryBusiness>();
-builder.Services.AddScoped<IProductsBusiness, ProductsBusinees>();
-builder.Services.AddScoped<IPayPalBusiness, PayPalBusiness>();
-builder.Services.AddScoped<IPromoCodeBusiness, PromoCodeBusiness>();
-builder.Services.AddScoped<ISalesBusiness, SalesBusiness>();
-builder.Services.AddScoped<IOrdersBusiness, OrdersBusiness>();
-builder.Services.AddScoped<IEmailBusiness, EmailBusiness>();
-builder.Services.AddScoped<ISellerBusiness, SellerBusiness>();
-builder.Services.AddScoped<IAuthorizeBusiness, AuthorizeBusiness>();
-builder.Services.AddScoped<IInventoryKeyGenerator, InventoryKeyGenerator>();
-builder.Services.AddSingleton<IFileSystem, FileSystem>();
+builder.Services.AddScoped<ImagesBusiness>();
+builder.Services.AddScoped<UsersBusiness>();
+builder.Services.AddScoped<CartItemBusiness>();
+builder.Services.AddScoped<CartsBusiness>();
+builder.Services.AddScoped<CategoryBusiness>();
+builder.Services.AddScoped<ProductsBusiness>();
+builder.Services.AddScoped<PayPalBusiness>();
+builder.Services.AddScoped<PromoCodeBusiness>();
+builder.Services.AddScoped<SalesBusiness>();
+builder.Services.AddScoped<OrdersBusiness>();
+builder.Services.AddScoped<EmailBusiness>();
+builder.Services.AddScoped<SellerBusiness>();
+builder.Services.AddScoped<AuthorizeBusiness>();
+builder.Services.AddScoped<InventoryKeyGenerator>();
+builder.Services.AddSingleton<FileSystem>();
 
-builder.Services.AddScoped<IUsersData, UsersData>();
-builder.Services.AddScoped<ICartItemData, CartItemsData>();
-builder.Services.AddScoped<ICartsData, CartsData>();
-builder.Services.AddScoped<ICategoryData, CategoryData>();
-builder.Services.AddScoped<IProductsData, ProductData>();
-builder.Services.AddScoped<IPayPalData, PayPalData>();
-builder.Services.AddScoped<IPromoCodeData, PromoCodeData>();
-builder.Services.AddScoped<ISalesData, SalesData>();
-builder.Services.AddScoped<IOrdersData, OrderData>();
-builder.Services.AddScoped<ISellerData, SellerData>();
-builder.Services.AddScoped<IEmailData, EmailData>();
-builder.Services.AddScoped<IAuthorizeData, AuthorizeData>();
+builder.Services.AddScoped<UsersData>();
+builder.Services.AddScoped<CartItemsData>();
+builder.Services.AddScoped<CartsData>();
+builder.Services.AddScoped<CategoryData>();
+builder.Services.AddScoped<ProductData>();
+builder.Services.AddScoped<PayPalData>();
+builder.Services.AddScoped<PromoCodeData>();
+builder.Services.AddScoped<SalesData>();
+builder.Services.AddScoped<OrderData>();
+builder.Services.AddScoped<SellerData>();
+builder.Services.AddScoped<EmailData>();
+builder.Services.AddScoped<AuthorizeData>();
 
 builder.Services.AddScoped<AuthenticateHelper>();
 builder.Services.AddScoped<AuthorizeHelper>();
@@ -108,7 +106,7 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddSingleton<TimerService>(provider =>
 {
-    var productsBusiness = provider.GetRequiredService<IProductsBusiness>();
+    var productsBusiness = provider.GetRequiredService<ProductsBusiness>();
     var productTrie = provider.GetRequiredService<ProductTrie>();
     return new TimerService(productsBusiness, productTrie);
 });

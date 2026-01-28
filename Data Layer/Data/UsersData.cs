@@ -1,13 +1,12 @@
 ﻿
 using Microsoft.Data.SqlClient;
 using System.Data;
-using Data_Layer.Interfaces;
 using Models;
 
 
 namespace Data_Layer.Data;
 
-public class UsersData : IUsersData
+public class UsersData 
 {
     private string ConnectionString { get; }
 

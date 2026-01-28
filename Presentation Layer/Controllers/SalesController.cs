@@ -1,9 +1,9 @@
 ﻿using Presentation_Layer.Authorization;
 using Enums;
-using Business_Layer.Interfaces;
 using Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Business_Layer.Business;
 
 namespace Presentation_Layer.Controllers;
 
@@ -13,10 +13,10 @@ namespace Presentation_Layer.Controllers;
 [Authorize]
 public class SalesController : ControllerBase
 {
-    private ISalesBusiness SalesBusiness { get; }
-    private IUsersBusiness UsersBusiness { get; }
+    private SalesBusiness SalesBusiness { get; }
+    private UsersBusiness UsersBusiness { get; }
 
-    public SalesController(ISalesBusiness salesBusiness, IUsersBusiness usersBusiness)
+    public SalesController(SalesBusiness salesBusiness, UsersBusiness usersBusiness)
     {
         SalesBusiness = salesBusiness;
         UsersBusiness = usersBusiness;

@@ -1,5 +1,4 @@
-﻿using Business_Layer.Interfaces;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Models;
 using Options;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Business_Layer.Business
 {
-    public class InventoryKeyGenerator : IInventoryKeyGenerator
+    public class InventoryKeyGenerator 
     {
         public InventoryKeyGenerator(InventoryOptions inventoryOptions, ILogger<InventoryKeyGenerator> logger)
         {

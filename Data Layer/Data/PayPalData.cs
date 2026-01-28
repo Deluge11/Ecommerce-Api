@@ -2,13 +2,12 @@
 using Microsoft.Data.SqlClient;
 using System.Data;
 using Microsoft.Extensions.Logging;
-using Data_Layer.Interfaces;
 using Models;
 
 
 namespace Data_Layer.Data;
 
-public class PayPalData : IPayPalData
+public class PayPalData 
 {
     public string ConnectionString { get; }
     public ILogger<PayPalData> Logger { get; }

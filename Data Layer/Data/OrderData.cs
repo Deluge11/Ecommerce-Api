@@ -2,13 +2,12 @@
 using Microsoft.Data.SqlClient;
 using System.ComponentModel;
 using System.Data;
-using Data_Layer.Interfaces;
 using Microsoft.Extensions.Logging;
 using Models;
 
 namespace Data_Layer.Data;
 
-public class OrderData : IOrdersData
+public class OrderData 
 {
 
 

@@ -1,9 +1,9 @@
 ﻿using Presentation_Layer.Authorization;
 using Enums;
-using Business_Layer.Interfaces;
 using Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Business_Layer.Business;
 
 
 namespace Presentation_Layer.Controllers;
@@ -15,13 +15,13 @@ namespace Presentation_Layer.Controllers;
 public class OrdersController : ControllerBase
 {
     public ILogger<OrdersController> logger { get; }
-    public IOrdersBusiness OrdersBusiness { get; }
-    public IUsersBusiness UsersBusiness { get; }
+    public OrdersBusiness OrdersBusiness { get; }
+    public UsersBusiness UsersBusiness { get; }
 
     public OrdersController (
         ILogger<OrdersController> _logger,
-        IOrdersBusiness ordersBusiness,
-        IUsersBusiness usersBusiness
+        OrdersBusiness ordersBusiness,
+        UsersBusiness usersBusiness
         )
     {
         logger = _logger;

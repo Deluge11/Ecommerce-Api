@@ -1,28 +1,27 @@
 ﻿
-using Data_Layer.Interfaces;
-using Business_Layer.Interfaces;
 using Options;
 using Business_Layer.Sanitizations;
 using System.Security.Claims;
 using Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
+using Data_Layer.Data;
 
 
 namespace Business_Layer.Business;
 
-public class UsersBusiness : IUsersBusiness
+public class UsersBusiness
 {
     private IHttpContextAccessor _httpContextAccessor { get; }
-    private IUsersData UsersData { get; }
-    public IEmailBusiness EmailBusiness { get; }
+    private UsersData UsersData { get; }
+    public EmailBusiness EmailBusiness { get; }
 
     private HttpContext HttpContext => _httpContextAccessor.HttpContext;
 
     public UsersBusiness(
         IHttpContextAccessor httpContext,
-        IUsersData usersData,
-        IEmailBusiness emailBusiness)
+        UsersData usersData,
+        EmailBusiness emailBusiness)
     {
         _httpContextAccessor = httpContext;
         UsersData = usersData;

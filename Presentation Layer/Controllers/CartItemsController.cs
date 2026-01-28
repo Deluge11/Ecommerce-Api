@@ -1,8 +1,8 @@
 ﻿using Enums;
 using Presentation_Layer.Authorization;
-using Business_Layer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Business_Layer.Business;
 
 namespace Presentation_Layer.Controllers;
 
@@ -12,9 +12,9 @@ namespace Presentation_Layer.Controllers;
 [CheckPermission(Permission.Carts_ManageCart)]
 public class CartItemsController : ControllerBase
 {
-    public ICartItemBusiness CartItemBusiness { get; }
+    public CartItemBusiness CartItemBusiness { get; }
 
-    public CartItemsController(ICartItemBusiness cartItemBusiness)
+    public CartItemsController(CartItemBusiness cartItemBusiness)
     {
         CartItemBusiness = cartItemBusiness;
     }

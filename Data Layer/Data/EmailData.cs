@@ -1,11 +1,10 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Net.Mail;
-using Data_Layer.Interfaces;
 
 namespace Data_Layer.Data;
 
-public class EmailData : IEmailData
+public class EmailData 
 {
 
     public string ConnectionString { get; }

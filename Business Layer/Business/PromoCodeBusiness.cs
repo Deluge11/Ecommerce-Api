@@ -1,21 +1,20 @@
 ﻿using Enums;
-using Data_Layer.Interfaces;
-using Business_Layer.Interfaces;
 using Business_Layer.Sanitizations;
 using Models;
+using Data_Layer.Data;
 
 namespace Business_Layer.Business;
 
-public class PromoCodeBusiness : IPromoCodeBusiness
+public class PromoCodeBusiness 
 {
-    public IProductsBusiness ProductsBusiness { get; }
-    public IPromoCodeData PromoCodeData { get; }
-    public IUsersBusiness UsersBusiness { get; }
+    public ProductsBusiness ProductsBusiness { get; }
+    public PromoCodeData PromoCodeData { get; }
+    public UsersBusiness UsersBusiness { get; }
 
     public PromoCodeBusiness(
-        IProductsBusiness productsBusiness,
-        IPromoCodeData promoCodeData,
-        IUsersBusiness usersBusiness
+        ProductsBusiness productsBusiness,
+        PromoCodeData promoCodeData,
+        UsersBusiness usersBusiness
         )
     {
         ProductsBusiness = productsBusiness;

@@ -1,4 +1,4 @@
-﻿using Business_Layer.Interfaces;
+﻿using Business_Layer.Business;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,8 +9,8 @@ namespace Presentation_Layer.Controllers
     [Route("[controller]")]
     public class SellersController : ControllerBase
     {
-        public ISellerBusiness SellerBusiness { get; }
-        public SellersController(ISellerBusiness sellerBusiness)
+        public SellerBusiness SellerBusiness { get; }
+        public SellersController(SellerBusiness sellerBusiness)
         {
             SellerBusiness = sellerBusiness;
         }

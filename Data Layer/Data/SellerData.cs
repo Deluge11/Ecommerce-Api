@@ -1,5 +1,4 @@
-﻿using Data_Layer.Interfaces;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Data_Layer.Data
 {
-    public class SellerData : ISellerData
+    public class SellerData 
     {
 
         public string ConnectionString { get; }

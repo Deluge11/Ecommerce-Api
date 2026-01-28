@@ -1,15 +1,16 @@
 ﻿
-using Business_Layer.Interfaces;
-using Data_Layer.Interfaces;
 
+
+
+using Data_Layer.Data;
 
 namespace Business_Layer.Business;
 
-public class EmailBusiness : IEmailBusiness
+public class EmailBusiness 
 {
-    public IEmailData EmailData { get; }
+    public EmailData EmailData { get; }
 
-    public EmailBusiness(IEmailData emailData)
+    public EmailBusiness(EmailData emailData)
     {
         EmailData = emailData;
     }

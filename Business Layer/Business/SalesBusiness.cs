@@ -1,17 +1,17 @@
-﻿using Business_Layer.Interfaces;
-using Data_Layer.Interfaces;
+﻿
+using Data_Layer.Data;
 using Enums;
 using Models;
 
 
 namespace Business_Layer.Business;
 
-public class SalesBusiness : ISalesBusiness
+public class SalesBusiness
 {
-    private ISalesData SalesData { get; }
-    public IUsersBusiness UsersBusiness { get; }
+    private SalesData SalesData { get; }
+    public UsersBusiness UsersBusiness { get; }
 
-    public SalesBusiness(ISalesData salesData, IUsersBusiness usersBusiness)
+    public SalesBusiness(SalesData salesData, UsersBusiness usersBusiness)
     {
         SalesData = salesData;
         UsersBusiness = usersBusiness;
@@ -76,7 +76,7 @@ public class SalesBusiness : ISalesBusiness
             return;
         }
 
-        if(id < 1)
+        if (id < 1)
         {
             return;
         }
